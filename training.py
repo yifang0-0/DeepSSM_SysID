@@ -92,7 +92,7 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
                     # save model
                     path = path_general + 'model/'
                     file_name = file_name_general + '_bestModel.ckpt'
-                    modelstate.save_model(epoch, vloss, time.clock() - start_time, path, file_name)
+                    modelstate.save_model(epoch, vloss, time.time() - start_time, path, file_name)
                     # torch.save(model.state_dict(), path + file_name)
                     best_epoch = epoch
 
@@ -119,7 +119,7 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
         print('\n')
         print('-' * 89)
         print('Exiting from training early')
-        # modelstate.save_model(epoch, vloss, time.clock() - start_time, logdir, 'interrupted_model.pt')
+        # modelstate.save_model(epoch, vloss, time.time() - start_time, logdir, 'interrupted_model.pt')
         print('-' * 89)
 
     # print best saved epoch model
