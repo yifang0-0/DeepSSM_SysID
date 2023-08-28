@@ -61,7 +61,7 @@ def create_toy_lgssm_datasets(seq_len_train=None, seq_len_val=None, seq_len_test
     # get the outputs
     y_train = run_toy_lgssm_sim(u_train, A, B, C, sigma_state, 0) + sigma_out * np.random.randn(1, k_max_train)
     y_val = run_toy_lgssm_sim(u_val, A, B, C, sigma_state, 0) + sigma_out * np.random.randn(1, k_max_val)
-
+    
     # get correct dimensions
     u_train = u_train.transpose(1, 0)
     y_train = y_train.transpose(1, 0)

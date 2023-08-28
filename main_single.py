@@ -1,4 +1,19 @@
 # import generic libraries
+"""
+The `run_main_single` function is the main function that runs the training and testing of a single
+model on a given dataset.
+
+:param options: - dataset: The name of the dataset to use. Options are 'narendra_li', 'toy_lgssm',
+'wiener_hammerstein'
+:param path_general: The `path_general` variable is the path where the log files and data files will
+be saved. It is a combination of the current working directory, the log directory specified in the
+options, the dataset name, and the model name
+:param file_name_general: The `file_name_general` parameter is a string that specifies the general
+file name for saving the results of the experiment. It is used to create a unique file name for each
+experiment by appending additional information such as the model type, dynamic system type, and
+model parameters (h_dim, z_dim,
+"""
+
 import torch.utils.data
 import pandas as pd
 import os
@@ -6,6 +21,7 @@ import torch
 import time
 import sys
 import matplotlib.pyplot as plt
+import argparse
 
 # os.chdir('../')
 # sys.path.append(os.getcwd())
@@ -17,8 +33,9 @@ from utils.utils import compute_normalizer
 from utils.logger import set_redirects
 from utils.utils import save_options
 # import options files
-import options.model_options as model_params
-import options.dataset_options as dynsys_params
+import options.train_options as main_params
+import options.train_options as model_params
+import options.train_options as dynsys_params
 import options.train_options as train_params
 from models.model_state import ModelState
 
@@ -28,7 +45,6 @@ from models.model_state import ModelState
 ########################################################################################################################
 def run_main_single(options, path_general, file_name_general):
     start_time = time.time()
-    print('Run file: main_single.py')
     print(time.strftime("%c"))
 
     # get correct computing device
@@ -64,7 +80,8 @@ def run_main_single(options, path_general, file_name_general):
     loaders = loader.load_dataset(dataset=options["dataset"],
                                   dataset_options=options["dataset_options"],
                                   train_batch_size=options["train_options"].batch_size,
-                                  test_batch_size=options["test_options"].batch_size, )
+                                  test_batch_size=options["test_options"].batch_size, 
+                                  known_parameter=options["known_parameter"])
 
     # Compute normalizers
     if options["normalize"]:
@@ -72,6 +89,9 @@ def run_main_single(options, path_general, file_name_general):
     else:
         normalizer_input = normalizer_output = None
 
+    if options['known_parameter'] == 'B':
+        options['model_options'].u_dim = 2
+        
     # Define model
     modelstate = ModelState(seed=options["seed"],
                             nu=loaders["train"].nu, ny=loaders["train"].ny,
@@ -84,9 +104,15 @@ def run_main_single(options, path_general, file_name_general):
     # save the options
     save_options(options, path_general, 'options.txt')
 
+    # correct input size
+
+        
+
     # allocation
-    df = {}
+    
+    
     if options['do_train']:
+        df = {}
         # train the model
         df = training.run_train(modelstate=modelstate,
                                 loader_train=loaders['train'],
@@ -95,10 +121,27 @@ def run_main_single(options, path_general, file_name_general):
                                 dataframe=df,
                                 path_general=path_general,
                                 file_name_general=file_name_general)
+        df = pd.DataFrame(df)
 
     if options['do_test']:
-        # test the model
-        df = testing.run_test(options, loaders, df, path_general, file_name_general)
+        # # test the model
+        # df = testing.run_test(options, loaders, df, path_general, file_name_general)
+        # df = pd.DataFrame(df)
+        
+        
+        # test the model for 10 times
+        # make sure df is in dataframe format
+        df = pd.DataFrame({})
+        for i in range(10):
+            df_single = {}
+            # test the model
+            df_single = testing.run_test(options, loaders, df_single, path_general, file_name_general)
+            # make df_single a dataframe
+            df_single = pd.DataFrame(df_single)
+            df = df.append(df_single)
+            
+        
+            
 
     # save data
     # get saving path
@@ -106,12 +149,21 @@ def run_main_single(options, path_general, file_name_general):
     # check if path exists and create otherwise
     if not os.path.exists(path):
         os.makedirs(path)
-    # to pandas
-    df = pd.DataFrame(df)
+
+
     # filename
     file_name = file_name_general + '.csv'
+    
+    # check if there's old log
+    if os.path.exists(path + file_name):
+        # read old data
+        df_old = pd.read_csv(path + file_name,index_col=None)
+        #append new to the old file
+        df = df_old.append(df)
+    
     # save data
-    df.to_csv(path + file_name)
+    df.to_csv(path + file_name,index=False)
+
 
     # time output
     time_el = time.time() - start_time
@@ -123,25 +175,50 @@ def run_main_single(options, path_general, file_name_general):
 
 
 # %%
+# The `if __name__ == "__main__":` block is used to check if the current script is being run as the
+# main program. If it is, then the code inside the block will be executed.
+
 if __name__ == "__main__":
-    # set (high level) options dictionary
-    options = {
-        'dataset': 'toy_lgssm',  # options: 'narendra_li', 'toy_lgssm', 'wiener_hammerstein'
-        'model': 'STORN', # options: 'VAE-RNN', 'VRNN-Gauss', 'VRNN-Gauss-I', 'VRNN-GMM', 'VRNN-GMM-I', 'STORN'
-        'do_train': True,
-        'do_test': True,
-        'logdir': 'single',
-        'normalize': True,
-        'seed': 1234,
-        'optim': 'Adam',
-        'showfig': True,
-        'savefig': False,
-    }
+    # set (high level) options dictionary, if the basic options are expected from the augment parser, we set OPTION_SETTING_MANUALLY = True, else we change the options directly from the python file.
+    OPTION_FROM_PARSER = True
+    if OPTION_FROM_PARSER is True:
+        options = {}
+
+        main_params_parser = main_params.get_main_options()
+        options['dataset'] = main_params_parser.dataset
+        options['model'] = main_params_parser.model
+        options['do_train'] = main_params_parser.do_train
+        options['do_test'] = main_params_parser.do_test
+        options['logdir'] = main_params_parser.logdir
+        options['normalize'] = main_params_parser.normalize
+        options['seed'] = main_params_parser.seed
+        options['optim'] = main_params_parser.optim
+        options['showfig'] = main_params_parser.showfig
+        options['savefig'] = main_params_parser.savefig
+        options['known_parameter'] = main_params_parser.known_parameter
+
+        # print("Encountered errors loading the main options of the training/testing task")
+        
+        
+    else:
+        options = {
+            'dataset': 'toy_lgssm',  # options: 'narendra_li', 'toy_lgssm', 'wiener_hammerstein'
+            'model': 'VAE-RNN', # options: 'VAE-RNN', 'VRNN-Gauss', 'VRNN-Gauss-I', 'VRNN-GMM', 'VRNN-GMM-I', 'STORN'
+            'do_train': False,
+            'do_test': True,
+            'logdir': 'same_dataset',
+            'normalize': True,
+            'seed': 1234,
+            'optim': 'Adam',
+            'showfig': False,
+            'savefig': True,
+            'known_parameter': 'B'
+        }
 
     # get saving path
-    path_general = os.getcwd() + '/log/{}/{}/{}/'.format(options['logdir'],
+    path_general = os.getcwd() + '/log/{}/{}/{}_{}/'.format(options['logdir'],
                                                          options['dataset'],
-                                                         options['model'], )
+                                                         options['model'],options['known_parameter'] )
 
     # get saving file names
     file_name_general = options['dataset']
