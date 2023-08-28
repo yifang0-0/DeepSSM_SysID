@@ -1,3 +1,11 @@
+# The above code is a Python script that performs training and testing of a neural network model. It
+# imports various libraries and modules, sets options for the model and dataset, loads the dataset,
+# computes normalizers, trains the model if specified, tests the model, evaluates the performance of
+# the model using various metrics such as VAF and RMSE, and saves the results.
+# The above code is a Python script that performs training and testing of a neural network model. It
+# imports various libraries and modules, sets options for the model and dataset, loads the dataset,
+# computes normalizers, trains the model if specified, tests the model, evaluates the performance of
+# the model using various metrics such as VAF and RMSE, and saves the results.
 # import generic libraries
 import pandas as pd
 import os
@@ -43,6 +51,7 @@ options = {
         'h_opt': 60,
         'z_opt': 5,
         'n_opt': 1, },
+    'known_parameter':'B'
 }
 
 # get saving path
@@ -50,7 +59,9 @@ path_general = os.getcwd() + '/log_Server/{}/{}/{}/'.format(options['logdir'],
                                                             options['dataset'],
                                                             options['model'], )
 
-# %%
+# %%# The above code is a Python script that performs training and testing of a neural network model
+
+
 if __name__ == "__main__":
     path = path_general + 'data/'
     # check if path exists and create otherwise
@@ -91,6 +102,13 @@ if __name__ == "__main__":
     logLikelihood_all = np.zeros([options['MCsamples']])
     rmse_KF_all = np.zeros([options['MCsamples']])
     vaf_KF_all = np.zeros([options['MCsamples']])
+    
+    # specify the partameter matrices for the linear system
+    A = np.array([[0.7, 0.8], [0, 0.1]])
+    B = np.array([[-1], [0.1]])
+    C = np.array([[1], [0]]).transpose()
+    Q = np.sqrt(0.25) * np.identity(2)
+    R = np.sqrt(1) * np.identity(1)
 
     # print model type and dynamic system type
     print('\n\tModel Type: {}'.format(options['model']))
@@ -143,13 +161,29 @@ if __name__ == "__main__":
         df = {}
         if options['do_train']:
             # %% train the model
-            df = training.run_train(modelstate=modelstate,
-                                    loader_train=loaders['train'],
-                                    loader_valid=loaders['valid'],
-                                    options=options,
-                                    dataframe={},
-                                    path_general=path_general,
-                                    file_name_general=file_name_general_it)
+            if options["known_parameter"]=='B':
+                print("B is known")
+                loader_train_true = loaders['train']
+                for i, (u, y) in enumerate(loader_train_true):
+                    loader_train_true[i][0] = B.dot(u.to(options['device'])[i])
+                loader_valid_true = loaders['valid']
+                for i, (u, y) in enumerate(loader_valid_true):
+                    loader_valid_true[i][0] = B.dot(u.to(options['device'])[i])
+                df = training.run_train(modelstate=modelstate,
+                                        loader_train=loader_train_true,
+                                        loader_valid=loader_valid_true,
+                                        options=options,
+                                        dataframe={},
+                                        path_general=path_general,
+                                        file_name_general=file_name_general_it)
+            else:
+                df = training.run_train(modelstate=modelstate,
+                                        loader_train=loaders['train'],
+                                        loader_valid=loaders['valid'],
+                                        options=options,
+                                        dataframe={},
+                                        path_general=path_general,
+                                        file_name_general=file_name_general_it)
 
         if options['do_test']:
             # %% test the model
@@ -184,8 +218,15 @@ if __name__ == "__main__":
             # sample from the model
             for i, (u_test, y_test) in enumerate(loaders['test']):
                 # getting output distribution parameter only implemented for selected models
+                # TODO: CHECK A BETTER WAY TO EXPRESS
                 u_test = u_test.to(options['device'])
-                y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+                if options['known_parameter']=='B':
+                    u_test_true = np.zeros(u_test.shape)
+                    for i in u_test.shape[0]:
+                        u_test_true[i] = B.dot(u_test[i])
+                    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test_true)
+                else:
+                    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
 
                 # convert to numpy for evaluation
                 # samples data
@@ -200,11 +241,11 @@ if __name__ == "__main__":
             y_test_noisy = y_test + np.sqrt(1) * np.random.randn(yshape[0], yshape[1], yshape[2])
 
             # run Kalman filter as optimal estimator for LGSSM
-            A = np.array([[0.7, 0.8], [0, 0.1]])
-            B = np.array([[-1], [0.1]])
-            C = np.array([[1], [0]]).transpose()
-            Q = np.sqrt(0.25) * np.identity(2)
-            R = np.sqrt(1) * np.identity(1)
+            # A = np.array([[0.7, 0.8], [0, 0.1]])
+            # B = np.array([[-1], [0.1]])
+            # C = np.array([[1], [0]]).transpose()
+            # Q = np.sqrt(0.25) * np.identity(2)
+            # R = np.sqrt(1) * np.identity(1)
             y_kalman = run_kalman_filter(A, B, C, Q, R, u_test, y_test_noisy)
 
             # %% plot time evaluation with uncertainty

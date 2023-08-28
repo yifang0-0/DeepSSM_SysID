@@ -19,6 +19,7 @@ class STORN(nn.Module):
         self.z_dim = param.z_dim
         self.n_layers = param.n_layers
         self.device = device
+        # only useful when its tested on linear toy dataset and b is known
 
         # feature-extracting transformations (phi_y, phi_u and phi_z)
         self.phi_y = nn.Sequential(

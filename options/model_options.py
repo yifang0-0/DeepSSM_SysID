@@ -41,6 +41,6 @@ def get_model_options(model_type, dataset_name, dataset_options):
     if model_type == 'VRNN-GMM-I' or model_type == 'VRNN-GMM':
         model_parser.add_argument('--n_mixtures', type=int, default=5, help='number Gaussian output mixtures')
 
-    model_options = model_parser.parse_args()
+    model_options, unkown = model_parser.parse_known_args()
 
     return model_options

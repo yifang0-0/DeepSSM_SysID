@@ -212,7 +212,7 @@ if __name__ == "__main__":
     # get saving path
     path_general = os.getcwd() + '/log/{}/{}/{}/'.format(options['logdir'],
                                                          options['dataset'],
-                                                         options['model'], )
+                                                         options['model'])
 
     # get saving file names
     file_name_general = options['dataset']

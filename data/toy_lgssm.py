@@ -39,7 +39,7 @@ def create_toy_lgssm_datasets(seq_len_train=None, seq_len_val=None, seq_len_test
     sigma_out = np.sqrt(1)
 
     # length of all data sets
-    if bool(kwargs):
+    if bool(kwargs) and ("k_max_train" in kwargs):
         k_max_train = kwargs['k_max_train']
         k_max_val = kwargs['k_max_val']
         k_max_test = kwargs['k_max_test']
@@ -49,24 +49,63 @@ def create_toy_lgssm_datasets(seq_len_train=None, seq_len_val=None, seq_len_test
         k_max_val = 5000
         k_max_test = 5000
 
-    # training / validation set input
-    u_train = (np.random.rand(1, k_max_train) - 0.5) * 5
-    u_val = (np.random.rand(1, k_max_val) - 0.5) * 5
     # test set input
     file_path = 'data/Toy_LGSSM/toy_lgssm_testdata.npz'
     test_data = np.load(file_path)
     u_test = test_data['u_test'][0:k_max_test]
     y_test = test_data['y_test'][0:k_max_test]
-
-    # get the outputs
-    y_train = run_toy_lgssm_sim(u_train, A, B, C, sigma_state, 0) + sigma_out * np.random.randn(1, k_max_train)
-    y_val = run_toy_lgssm_sim(u_val, A, B, C, sigma_state, 0) + sigma_out * np.random.randn(1, k_max_val)
     
-    # get correct dimensions
+    '''
+    # This is the original code which generate differen dataset everytime
+        # training / validation set input
+        u_train = (np.random.rand(1, k_max_train) - 0.5) * 5
+        u_val = (np.random.rand(1, k_max_val) - 0.5) * 5
+
+
+        # get the outputs
+        y_train = run_toy_lgssm_sim(u_train, A, B, C, sigma_state, 0) + sigma_out * np.random.randn(1, k_max_train)
+        y_val = run_toy_lgssm_sim(u_val, A, B, C, sigma_state, 0) + sigma_out * np.random.randn(1, k_max_val)
+
+    '''
+    
+    # load the existing training and validation dataset, notice that unlike the test dataset, where data is with the shape of (5000,1), in the training and validation dataset, the data was saved as the same shape as the original randomly code. So the shape is (1,5000), but it is fine because the model also has diffrent loading methods. 
+    # dataset generating code is in the file output_analyse.ipynb under the main folder
+    
+    train_file_path = 'data/Toy_LGSSM/toy_lgssm_traindata.npz'
+    val_file_path = 'data/Toy_LGSSM/toy_lgssm_valdata.npz'
+    train_data = np.load(train_file_path)
+    val_data = np.load(val_file_path)
+    u_train = train_data['u_train'][0:k_max_train]
+    y_train = train_data['y_train'][0:k_max_train]
+    u_val = val_data['u_val'][0:k_max_val]
+    y_val = val_data['y_val'][0:k_max_val]
+      
+      
+      
+    # TODO: This is just a piece of shiiiit which needs to be update a lot!!!!
+    # see if we need to multiply B and u (the situation that we know the control-input model B)
+    if "known_parameter" in kwargs:
+        if kwargs["known_parameter"] == 'B':
+            u_train_new = np.zeros((B.shape[0],k_max_train)) 
+            u_val_new = np.zeros((B.shape[0],k_max_val))
+            u_test_new = np.zeros((B.shape[0],k_max_test))            
+            for i in range(k_max_train):
+                u_train_new[:,i] = np.dot(B,u_train[:,i])
+            for i in range(k_max_val):
+                u_val_new[:,i] = np.dot(B,u_val[:,i])
+            for i in range(k_max_test):  
+                u_test_new[:,i] = np.dot(B,u_test.transpose(1,0)[:,i])
+            u_train = u_train_new
+            u_val = u_val_new
+            u_test = u_test_new.transpose(1, 0)
+            
+            
+        # get correct dimensions
     u_train = u_train.transpose(1, 0)
     y_train = y_train.transpose(1, 0)
     u_val = u_val.transpose(1, 0)
-    y_val = y_val.transpose(1, 0)
+    y_val = y_val.transpose(1, 0)            
+
 
     dataset_train = IODataset(u_train, y_train, seq_len_train)
     dataset_val = IODataset(u_val, y_val, seq_len_val)
