@@ -75,8 +75,8 @@ def get_main_options():
     model_parser = argparse.ArgumentParser(description='Model Parameter')
     model_parser.add_argument('--dataset',metavar='', type=str, default='toy_lgssm')
     model_parser.add_argument('--model', metavar = '', type=str, default='VRNN-Gauss-I')
-    model_parser.add_argument('--do_train',metavar = '',  type=bool, default=True)
-    model_parser.add_argument('--do_test', metavar = '', type=bool, default=True)
+    model_parser.add_argument('--do_train', action="store_true")
+    model_parser.add_argument('--do_test', action="store_true")
     model_parser.add_argument('--logdir',metavar = '',  type=str, default='same_dataset')
     model_parser.add_argument('--normalize', metavar = '', type=bool, default=True)
     model_parser.add_argument('--seed', metavar = '', type=int, default=1234)
@@ -84,8 +84,11 @@ def get_main_options():
     model_parser.add_argument('--showfig', metavar = '', type=bool, default=False)
     model_parser.add_argument('--savefig', metavar = '', type=bool, default=False)
     model_parser.add_argument('--known_parameter', metavar = '', type=str, default='None')
- 
+    model_parser.add_argument('--train_rounds', metavar = '', type=int, default=50)
+    model_parser.add_argument('--start_from', metavar = '', type=int, default=0)
+    
     model_options, unknown = model_parser.parse_known_args()
+    print(model_options)
     return model_options
 
 

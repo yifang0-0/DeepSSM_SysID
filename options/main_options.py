@@ -7,7 +7,7 @@ def get_main_options():
     model_parser = argparse.ArgumentParser(description='Model Parameter')
     model_parser.add_argument('--dataset',metavar='', type=str, default='toy_lgssm')
     model_parser.add_argument('--model', metavar = '', type=str, default='VRNN-Gauss-I')
-    model_parser.add_argument('--do_train',metavar = '',  type=bool, default=True)
+    model_parser.add_argument('--do_train',metavar = '',  type=bool, default=False)
     model_parser.add_argument('--do_test', metavar = '', type=bool, default=True)
     model_parser.add_argument('--logdir',metavar = '',  type=str, default='same_dataset')
     model_parser.add_argument('--normalize', metavar = '', type=bool, default=True)

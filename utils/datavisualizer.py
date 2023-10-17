@@ -90,6 +90,9 @@ def plot_losscurve(df, options, path_general, file_name_general, removedata=True
         xval = np.linspace(0, options['train_options'].test_every * (len(all_losses) - 1), len(all_losses))
         plt.plot(xval, all_losses, label='Training set')
         plt.plot(xval, all_vlosses, label='Validation set')  # loss_test_store_idx,
+        print(time_el,type(time_el))
+        print('Number Epochs in {:2.0f}:{:2.0f} [min:sec]'.format(time_el // 60,
+                                                                       time_el - 60 * (time_el // 60)))
         plt.xlabel('Number Epochs in {:2.0f}:{:2.0f} [min:sec]'.format(time_el // 60,
                                                                        time_el - 60 * (time_el // 60)))
         plt.ylabel('Loss')
@@ -128,6 +131,9 @@ def plot_perf_ndata(k_max_train_values, all_vaf, all_rmse, all_likelihood, optio
     mu = all_vaf.mean(0).squeeze().numpy()
     std = np.sqrt(all_vaf.var(0)).squeeze().numpy()
     plt.subplot(3, 1, 1)
+    print("x,mu")
+    
+    print(x,mu)
     # plot mean
     plt.plot(x, mu, label='VAF $\mu\pm\sigma$')
     # plot std

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.distributions as tdist
-
+import numpy as np
 """implementation of the Variational Recurrent Neural Network (VRNN-Gauss) from https://arxiv.org/abs/1506.02216 using
 unimodal isotropic gaussian distributions for inference, prior, and generating models."""
 
@@ -125,13 +125,13 @@ class VRNN_Gauss(nn.Module):
         batch_size = u.shape[0]
         # length of the sequence to generate
         seq_len = u.shape[-1]
-
+        
         # allocation
         sample = torch.zeros(batch_size, self.y_dim, seq_len, device=self.device)
         sample_mu = torch.zeros(batch_size, self.y_dim, seq_len, device=self.device)
         sample_sigma = torch.zeros(batch_size, self.y_dim, seq_len, device=self.device)
         h = torch.zeros(self.n_layers, batch_size, self.h_dim, device=self.device)
-
+        z = torch.zeros(batch_size, self.z_dim, seq_len, device=self.device)  # store all the z
         # for all time steps
         for t in range(seq_len):
             # feature extraction: u_t+1
@@ -159,8 +159,11 @@ class VRNN_Gauss(nn.Module):
             sample_mu[:, :, t] = dec_mean_t
             sample_sigma[:, :, t] = dec_logvar_t.exp().sqrt()
 
+            z[:,:,t] = z_t
             # recurrence: u_t+1, z_t -> h_t+1
             _, h = self.rnn(torch.cat([phi_u_t, phi_z_t], 1).unsqueeze(0), h)
+            # print("t round    prior_mean_t,prior_logvar_t ")
+            # print(t,"     ",prior_mean_t,prior_logvar_t)
 
         return sample, sample_mu, sample_sigma
 
