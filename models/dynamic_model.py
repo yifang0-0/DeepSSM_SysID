@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from . import STORN, VAE_RNN, VRNN_Gauss, VRNN_Gauss_I, VRNN_GMM, VRNN_GMM_I
+from . import STORN, VAE_RNN, VRNN_Gauss, VRNN_Gauss_I, VRNN_GMM, VRNN_GMM_I, STORN_PHY, VAE_RNN_PHY, VRNN_PHY
 
 
 class DynamicModel(nn.Module):
@@ -32,6 +32,12 @@ class DynamicModel(nn.Module):
             self.m = STORN(model_options, options['device'])
         elif model == 'VAE-RNN':
             self.m = VAE_RNN(model_options, options['device'])
+        elif model == 'STORN-PHY':
+            self.m = STORN_PHY(model_options, options['device'])
+        elif model == 'VAE-RNN-PHY':
+            self.m = VAE_RNN_PHY(model_options, options['device'])
+        elif model == 'VRNN-PHY':
+            self.m = VRNN_PHY(model_options, options['device'])
         else:
             raise Exception("Unimplemented model")
 
@@ -53,13 +59,16 @@ class DynamicModel(nn.Module):
         if self.normalizer_input is not None:
             u = self.normalizer_input.normalize(u)
 
-        y_sample, y_sample_mu, y_sample_sigma = self.m.generate(u)
+        y_sample, y_sample_mu, y_sample_sigma, z = self.m.generate(u)
 
+        # %% I don't understand this part???
         if self.normalizer_output is not None:
             y_sample = self.normalizer_output.unnormalize(y_sample)
         if self.normalizer_output is not None:
             y_sample_mu = self.normalizer_output.unnormalize_mean(y_sample_mu)
         if self.normalizer_output is not None:
             y_sample_sigma = self.normalizer_output.unnormalize_sigma(y_sample_sigma)
+        if self.normalizer_output is not None:
+            z = self.normalizer_output.unnormalize(z)
 
-        return y_sample, y_sample_mu, y_sample_sigma
+        return y_sample, y_sample_mu, y_sample_sigma,z

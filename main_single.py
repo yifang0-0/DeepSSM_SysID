@@ -22,7 +22,8 @@ import time
 import sys
 import matplotlib.pyplot as plt
 import argparse
-
+import subprocess
+import io
 # os.chdir('../')
 # sys.path.append(os.getcwd())
 # import user-written files
@@ -46,13 +47,29 @@ from models.model_state import ModelState
 def run_main_single(options, path_general, file_name_general):
     start_time = time.time()
     print(time.strftime("%c"))
-
-    # get correct computing device
+    
+   # get correct computing device
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        
+        # get the usage of gpu memory from command "nvidia-smi" 
+        gpu_stats = subprocess.check_output(["nvidia-smi", "--format=csv", "--query-gpu=memory.used,memory.free"])
+        gpu_df = pd.read_csv(io.BytesIO(gpu_stats),names=['memory.used', 'memory.free'],skiprows=1)
+        print('GPU usage:\n{}'.format(gpu_df))
+        
+        #get the id of the gpu with a maximum memory space left
+        gpu_df['memory.free'] = gpu_df['memory.free'].map(lambda x: x.rstrip(' [MiB]'))
+        idx = gpu_df['memory.free'].astype(int).idxmax()        
+        print('Returning GPU{} with {} free MiB'.format(idx, gpu_df.iloc[idx]['memory.free']))
+        
+        # run the task on the selected GPU
+        torch.cuda.set_device(idx)
+        device = torch.device('cuda') 
+        gpu_name = torch.cuda.get_device_name(idx)
+        print(f"Using GPU {idx}: {gpu_name}") 
     else:
         device = torch.device('cpu')
     print('Device: {}'.format(device))
+
 
     # get the options
     options['device'] = device
@@ -91,6 +108,7 @@ def run_main_single(options, path_general, file_name_general):
 
     if options['known_parameter'] == 'B':
         options['model_options'].u_dim = 2
+
         
     # Define model
     modelstate = ModelState(seed=options["seed"],
@@ -138,10 +156,10 @@ def run_main_single(options, path_general, file_name_general):
             df_single = testing.run_test(options, loaders, df_single, path_general, file_name_general)
             # make df_single a dataframe
             df_single = pd.DataFrame(df_single)
-            df = df.append(df_single)
+            df = pd.concat([df,df_single])
             
         
-    # save data
+    # %% save data
     # get saving path
     path = path_general + 'data/'
     # check if path exists and create otherwise
@@ -152,15 +170,17 @@ def run_main_single(options, path_general, file_name_general):
     # filename
     file_name = file_name_general + '.csv'
     
-    # check if there's old log
-    if os.path.exists(path + file_name):
-        # read old data
-        df_old = pd.read_csv(path + file_name,index_col=None)
-        #append new to the old file
-        df = df_old.append(df)
+    # %% apend on the old one check if there's old log
+    # if os.path.exists(path + file_name):
+    #     # read old data
+    #     df_old = pd.read_csv(path + file_name,index_col=None)
+    #     #append new to the old file
+    #     df = pd.concat([df_old,df])
+    
     
     # save data
-    df.to_csv(path + file_name,index=False)
+    if options['savelog']:
+        df.to_csv(path + file_name,index=False)
 
 
     # time output
@@ -178,7 +198,7 @@ def run_main_single(options, path_general, file_name_general):
 
 if __name__ == "__main__":
     # set (high level) options dictionary, if the basic options are expected from the augment parser, we set OPTION_SETTING_MANUALLY = True, else we change the options directly from the python file.
-    OPTION_FROM_PARSER = True
+    OPTION_FROM_PARSER = False
     if OPTION_FROM_PARSER is True:
         options = {}
 
@@ -201,16 +221,17 @@ if __name__ == "__main__":
     else:
         options = {
             'dataset': 'toy_lgssm',  # options: 'narendra_li', 'toy_lgssm', 'wiener_hammerstein'
-            'model': 'VAE-RNN', # options: 'VAE-RNN', 'VRNN-Gauss', 'VRNN-Gauss-I', 'VRNN-GMM', 'VRNN-GMM-I', 'STORN'
-            'do_train': False,
+            'model': 'VAE-RNN-PHY', # options: 'VAE-RNN', 'VRNN-Gauss', 'VRNN-Gauss-I', 'VRNN-GMM', 'VRNN-GMM-I', 'STORN'
+            'do_train': True,
             'do_test': True,
-            'logdir': 'multi_50',
+            'logdir': 'single_phy_idmaC',
             'normalize': True,
             'seed': 1234,
             'optim': 'Adam',
             'showfig': False,
             'savefig': True,
-            'known_parameter': 'B'
+            'savelog': False,
+            'known_parameter': 'None'
         }
 
     # get saving path

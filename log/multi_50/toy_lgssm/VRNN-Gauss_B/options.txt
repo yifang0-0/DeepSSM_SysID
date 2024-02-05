@@ -1,7 +1,7 @@
 {
  "dataset": "toy_lgssm",
  "model": "VRNN-Gauss",
- "do_train": true,
+ "do_train": false,
  "do_test": true,
  "logdir": "multi_50",
  "normalize": true,
@@ -10,7 +10,7 @@
  "showfig": false,
  "savefig": false,
  "known_parameter": "B",
- "train_rounds": 43,
+ "train_rounds": 50,
  "start_from": 0,
  "device": "cuda",
  "dataset_options": {

@@ -33,7 +33,8 @@ def create_toy_lgssm_datasets(seq_len_train=None, seq_len_val=None, seq_len_test
     # state space matrices
     A = np.array([[0.7, 0.8], [0, 0.1]])
     B = np.array([[-1], [0.1]])
-    C = np.array([[1], [0]]).transpose()
+    # C = np.array([[1], [0]]).transpose()
+    C = np.array([[1], [-1]]).transpose()
     # define noise
     sigma_state = np.sqrt(0.25)
     sigma_out = np.sqrt(1)
@@ -52,11 +53,22 @@ def create_toy_lgssm_datasets(seq_len_train=None, seq_len_val=None, seq_len_test
     print("k_max_train,k_max_val")
     print(k_max_train,k_max_val)
     
+
     # test set input
-    file_path = 'data/Toy_LGSSM/toy_lgssm_testdata.npz'
+    # file_path = 'data/Toy_LGSSM/toy_lgssm_testdata.npz'
+    file_path = 'data/Toy_LGSSM/toy_lgssm_testdata_identical.npz'
+    
     test_data = np.load(file_path)
     u_test = test_data['u_test'][0:k_max_test]
     y_test = test_data['y_test'][0:k_max_test]
+    
+
+
+    # u_test = (np.random.rand(1, k_max_test) - 0.5) * 5 + 5
+    # # get the outputs
+    # y_test = run_toy_lgssm_sim(u_test, A, B, C, sigma_state, 0) + sigma_out * np.random.randn(1, k_max_test)
+    # y_test = y_test.transpose(1, 0)
+    # u_test = u_test.transpose(1, 0)
 
 
     # This is the original code which generate differen dataset everytime
@@ -83,7 +95,7 @@ def create_toy_lgssm_datasets(seq_len_train=None, seq_len_val=None, seq_len_test
     '''  
 
       
-    # TODO: This is just a piece of shiiiit which needs to be update a lot!!!!
+
     # see if we need to multiply B and u (the situation that we know the control-input model B)
     if "known_parameter" in kwargs:
         if kwargs["known_parameter"] == 'B':

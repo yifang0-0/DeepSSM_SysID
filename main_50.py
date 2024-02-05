@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import argparse
 import numpy as np
 import csv
+import io
+import subprocess
 # os.chdir('../')
 # sys.path.append(os.getcwd())
 # import user-written files
@@ -36,9 +38,21 @@ def run_main_50(options, path_general, file_name_general):
 
     # get correct computing device
     if torch.cuda.is_available():
-        device_id = 0
-        torch.cuda.set_device(device_id)  
-        device = torch.device('cuda')
+        # get the usage of gpu memory from command "nvidia-smi" 
+        gpu_stats = subprocess.check_output(["nvidia-smi", "--format=csv", "--query-gpu=memory.used,memory.free"])
+        gpu_df = pd.read_csv(io.BytesIO(gpu_stats),names=['memory.used', 'memory.free'],skiprows=1)
+        print('GPU usage:\n{}'.format(gpu_df))
+        
+        #get the id of the gpu with a maximum memory space left
+        gpu_df['memory.free'] = gpu_df['memory.free'].map(lambda x: x.rstrip(' [MiB]'))
+        idx = gpu_df['memory.free'].astype(int).idxmax()        
+        print('Returning GPU{} with {} free MiB'.format(idx, gpu_df.iloc[idx]['memory.free']))
+        
+        # run the task on the selected GPU
+        torch.cuda.set_device(idx)
+        device = torch.device('cuda') 
+        gpu_name = torch.cuda.get_device_name(idx)
+        print(f"Using GPU {idx}: {gpu_name}") 
     else:
         device = torch.device('cpu')
     print('Device: {}'.format(device))
@@ -79,7 +93,7 @@ def run_main_50(options, path_general, file_name_general):
 
     for i in range(start_from_round, train_rounds):
         # print which training iteration this is
-        print(' {}/{} model is being trained'.format(i+1,train_rounds))
+        print(' {}/{} round starts'.format(i+1,train_rounds))
 
         # Specifying datasets
         loaders = loader.load_dataset(dataset=options["dataset"],
@@ -111,6 +125,8 @@ def run_main_50(options, path_general, file_name_general):
         
         
         if options['do_train']:
+            print(' {}/{} model is being trained'.format(i+1,train_rounds))
+            
             df = {}
             # train the model
             df = training.run_train(modelstate=modelstate,
@@ -123,23 +139,24 @@ def run_main_50(options, path_general, file_name_general):
             df = pd.DataFrame(df)
 
         if options['do_test']:
+            print(' {}/{} model is being tested'.format(i+1,train_rounds))
             # test the model
             df = {}
             df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
             df = pd.DataFrame(df)
             
-            '''
-            # test the model for 10 times
-            # make sure df is in dataframe format
-            df = pd.DataFrame({})
-            for i in range(10):
-                df_single = {}
-                # test the model
-                df_single = testing.run_test(options, loaders, df_single, path_general, file_name_general)
-                # make df_single a dataframe
-                df_single = pd.DataFrame(df_single)
-                df = df.append(df_single)
-            '''
+            
+            # # test the model for 10 times
+            # # make sure df is in dataframe format
+            # df = pd.DataFrame({})
+            # for i in range(10):
+            #     df_single = {}
+            #     # test the model
+            #     df_single = testing.run_test(options, loaders, df_single, path_general, file_name_general)
+            #     # make df_single a dataframe
+            #     df_single = pd.DataFrame(df_single)
+            #     df = df.append(df_single)
+            
             
         # store values
         all_df[i] = df
@@ -149,8 +166,7 @@ def run_main_50(options, path_general, file_name_general):
         all_vaf[i] = df['vaf'][0]
         all_rmse[i] = df['rmse'][0]
         all_likelihood[i] = df['marginal_likeli'].item()
-            
-        
+                
     # save data
     # get saving path
     path = path_general + 'data/'
@@ -162,6 +178,7 @@ def run_main_50(options, path_general, file_name_general):
     for _,i_df in all_df.items():
         all_df_list.append(i_df)
     all_df = pd.concat(all_df_list)
+        
     print(all_df)
     # filename
     file_name = file_name_general + '_multitrain.csv'
@@ -170,11 +187,13 @@ def run_main_50(options, path_general, file_name_general):
     if not os.path.exists(path):
         os.makedirs(path)
     # # check if there's old log
-    # if os.path.exists(path + file_name):
-    #     # read old data
-    #     df_old = pd.read_csv(path + file_name,index_col=None)
-    #     #append new to the old file
-    #     df = df_old.append(df)
+    if os.path.exists(path + file_name):
+        # read old data
+        df_old = pd.read_csv(path + file_name,index_col=None)
+        #append new to the old file
+        df = df_old.append(df)
+    
+    # %% TODO: remember to decomment this section
     
     # save data
     all_df.to_csv(path_general + file_name)
@@ -186,7 +205,7 @@ def run_main_50(options, path_general, file_name_general):
     # plot performance
     # train_rounds_idx = np.arange(1, 51)
     # dv.plot_perf_ndata(train_rounds_idx, all_vaf, all_rmse, all_likelihood, options, path_general)
-    
+    # %% TODO: End of this section
     # time output
     time_el = time.time() - start_time
     hours = time_el // 3600

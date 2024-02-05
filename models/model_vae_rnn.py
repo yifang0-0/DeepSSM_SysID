@@ -132,6 +132,7 @@ class VAE_RNN(nn.Module):
         sample = torch.zeros(batch_size, self.y_dim, seq_len, device=self.device)
         sample_mu = torch.zeros(batch_size, self.y_dim, seq_len, device=self.device)
         sample_sigma = torch.zeros(batch_size, self.y_dim, seq_len, device=self.device)
+        z = torch.zeros(batch_size, self.z_dim, seq_len, device=self.device)
 
         h = torch.zeros(self.n_layers, batch_size, self.h_dim, device=self.device)
 
@@ -148,6 +149,7 @@ class VAE_RNN(nn.Module):
             # sampling and reparameterization: get new z_t
             temp = tdist.Normal(prior_mean_t, prior_logvar_t.exp().sqrt())
             z_t = tdist.Normal.rsample(temp)
+            z[:,:,t] = z_t
             # feature extraction: z_t
             phi_z_t = self.phi_z(z_t)
 
@@ -162,10 +164,10 @@ class VAE_RNN(nn.Module):
             sample_mu[:, :, t] = dec_mean_t
             sample_sigma[:, :, t] = dec_logvar_t.exp().sqrt()
 
-            # recurrence: u_t+1, z_t -> h_t+1
+            # recurrence: u_t+1 -> h_t+1
             _, h = self.rnn(phi_u_t.unsqueeze(0), h)
 
-        return sample, sample_mu, sample_sigma
+        return sample, sample_mu, sample_sigma, z
 
     @staticmethod
     def kld_gauss(mu_q, logvar_q, mu_p, logvar_p):

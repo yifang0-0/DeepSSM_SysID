@@ -171,7 +171,7 @@ def get_model_options(model_type, dataset_name, dataset_options):
 
     elif dataset_name == 'toy_lgssm':
         model_parser.add_argument('--h_dim', type=int, default=70, help='dimension of det. latent variable h')
-        model_parser.add_argument('--z_dim', type=int, default=5, help='dimension of stoch. latent variable')
+        model_parser.add_argument('--z_dim', type=int, default=2, help='dimension of stoch. latent variable')
         model_parser.add_argument('--n_layers', type=int, default=1, help='number of RNN layers (GRU)')
 
     elif dataset_name == 'wiener_hammerstein':

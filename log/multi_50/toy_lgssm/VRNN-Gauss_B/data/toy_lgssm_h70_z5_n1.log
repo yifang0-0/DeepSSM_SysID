@@ -34601,3 +34601,1062 @@ Train Epoch: [    4/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03
 Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 12.973
 Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 11.492	Val Loss: 11.524
 Train Epoch: [    6/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 11.488
+Total number of data point sets: 50
+ 1/50 model is being trained
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 20.050
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.178	Val Loss: 18.219
+Train Epoch: [    1/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.168
+Train Epoch: [    2/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 16.711
+Train Epoch: [    3/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 15.426
+Train Epoch: [    4/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 14.112
+Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 12.717
+Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 11.298	Val Loss: 11.347
+
+
+-----------------------------------------------------------------------------------------
+Exiting from training early
+-----------------------------------------------------------------------------------------
+Model parameters: 105932
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 126, in run_main_50
+    df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/testing.py", line 62, in run_test
+    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/dynamic_model.py", line 56, in generate
+    y_sample, y_sample_mu, y_sample_sigma = self.m.generate(u)
+                                            ^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_vrnn_gauss.py", line 147, in generate
+    z_t = tdist.Normal.rsample(temp)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/distributions/normal.py", line 74, in rsample
+    eps = _standard_normal(shape, dtype=self.loc.dtype, device=self.loc.device)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/distributions/utils.py", line 50, in _standard_normal
+    return torch.empty(shape, dtype=dtype, device=device).normal_()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Total number of data point sets: 50
+ 1/50 model is being trained
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 105, in run_main_50
+    modelstate.model.to(options['device'])
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1145, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 202, in _apply
+    self._init_flat_weights()
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 139, in _init_flat_weights
+    self.flatten_parameters()
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 190, in flatten_parameters
+    torch._cudnn_rnn_flatten_weight(
+RuntimeError: cuDNN error: CUDNN_STATUS_NOT_INITIALIZED
+Total number of data point sets: 50
+ 1/50 model is being trained
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 105, in run_main_50
+    modelstate.model.to(options['device'])
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1145, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 202, in _apply
+    self._init_flat_weights()
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 139, in _init_flat_weights
+    self.flatten_parameters()
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 190, in flatten_parameters
+    torch._cudnn_rnn_flatten_weight(
+RuntimeError: cuDNN error: CUDNN_STATUS_NOT_INITIALIZED
+Total number of data point sets: 50
+ 1/50 model is being trained
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 19.989
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.110	Val Loss: 17.891
+Train Epoch: [    1/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.109
+Train Epoch: [    2/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 16.663
+Train Epoch: [    3/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 15.387
+Train Epoch: [    4/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 14.061
+Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 12.661
+Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 11.222	Val Loss: 11.113
+Train Epoch: [    6/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 11.218
+Train Epoch: [    7/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 9.779
+Train Epoch: [    8/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 8.392
+Train Epoch: [    9/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 7.086
+Train Epoch: [   10/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 5.927
+Train Epoch: [   10/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 4.872	Val Loss: 4.853
+Train Epoch: [   11/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 4.862
+Train Epoch: [   12/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 4.019
+
+
+-----------------------------------------------------------------------------------------
+Exiting from training early
+-----------------------------------------------------------------------------------------
+Model parameters: 105932
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 126, in run_main_50
+    df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/testing.py", line 62, in run_test
+    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/dynamic_model.py", line 56, in generate
+    y_sample, y_sample_mu, y_sample_sigma = self.m.generate(u)
+                                            ^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_vrnn_gauss.py", line 141, in generate
+    prior_t = self.prior(h[-1])
+              ^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1494, in _call_impl
+    def _call_impl(self, *args, **kwargs):
+
+KeyboardInterrupt
+Total number of data point sets: 50
+ 1/50 model is being trained
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 20.200
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.346	Val Loss: 17.884
+Train Epoch: [    1/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.350
+Train Epoch: [    2/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 16.887
+Train Epoch: [    3/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 15.600
+
+
+-----------------------------------------------------------------------------------------
+Exiting from training early
+-----------------------------------------------------------------------------------------
+Model parameters: 105932
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 126, in run_main_50
+    df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/testing.py", line 62, in run_test
+    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/dynamic_model.py", line 56, in generate
+    y_sample, y_sample_mu, y_sample_sigma = self.m.generate(u)
+                                            ^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_vrnn_gauss.py", line 146, in generate
+    temp = tdist.Normal(prior_mean_t, prior_logvar_t.exp().sqrt())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/distributions/normal.py", line 56, in __init__
+    super().__init__(batch_shape, validate_args=validate_args)
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/distributions/distribution.py", line 61, in __init__
+    if not valid.all():
+KeyboardInterrupt
+Total number of data point sets: 50
+ 1/50 model is being trained
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 19.984
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.136	Val Loss: 17.471
+Train Epoch: [    1/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.129
+Train Epoch: [    2/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 16.687
+Train Epoch: [    3/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 15.415
+Train Epoch: [    4/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 14.103
+Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 12.711
+Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 11.294	Val Loss: 10.898
+Train Epoch: [    6/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 11.296
+Train Epoch: [    7/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 9.863
+Train Epoch: [    8/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 8.485
+
+
+-----------------------------------------------------------------------------------------
+Exiting from training early
+-----------------------------------------------------------------------------------------
+Model parameters: 105932
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 126, in run_main_50
+    df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/testing.py", line 62, in run_test
+    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/dynamic_model.py", line 56, in generate
+    y_sample, y_sample_mu, y_sample_sigma = self.m.generate(u)
+                                            ^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_vrnn_gauss.py", line 141, in generate
+    prior_t = self.prior(h[-1])
+              ^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Total number of data point sets: 50
+ 1/50 model is being trained
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 19.874
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.024	Val Loss: 17.931
+Train Epoch: [    1/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.022
+Train Epoch: [    2/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 16.589
+
+
+-----------------------------------------------------------------------------------------
+Exiting from training early
+-----------------------------------------------------------------------------------------
+Model parameters: 105932
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 126, in run_main_50
+    df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/testing.py", line 62, in run_test
+    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/dynamic_model.py", line 56, in generate
+    y_sample, y_sample_mu, y_sample_sigma = self.m.generate(u)
+                                            ^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_vrnn_gauss.py", line 142, in generate
+    prior_mean_t = self.prior_mean(prior_t)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Total number of data point sets: 50
+ 1/50 model is being trained
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 20.206
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.329	Val Loss: 19.011
+Train Epoch: [    1/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.320
+Train Epoch: [    2/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 16.863
+Train Epoch: [    3/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 15.570
+Train Epoch: [    4/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 14.231
+
+
+-----------------------------------------------------------------------------------------
+Exiting from training early
+-----------------------------------------------------------------------------------------
+Model parameters: 105932
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 126, in run_main_50
+    df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/testing.py", line 62, in run_test
+    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/dynamic_model.py", line 56, in generate
+    y_sample, y_sample_mu, y_sample_sigma = self.m.generate(u)
+                                            ^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_vrnn_gauss.py", line 163, in generate
+    _, h = self.rnn(torch.cat([phi_u_t, phi_z_t], 1).unsqueeze(0), h)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 998, in forward
+    result = _VF.gru(input, hx, self._flat_weights, self.bias, self.num_layers,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Total number of data point sets: 50
+ 1/50 model is being trained
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 105, in run_main_50
+    modelstate.model.to(options['device'])
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1145, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 202, in _apply
+    self._init_flat_weights()
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 139, in _init_flat_weights
+    self.flatten_parameters()
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 190, in flatten_parameters
+    torch._cudnn_rnn_flatten_weight(
+RuntimeError: cuDNN error: CUDNN_STATUS_NOT_INITIALIZED
+Total number of data point sets: 50
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 251, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 77, in run_main_50
+    print(options['do_train'])
+          ~~~~~~~^^^^^^^^^^^^
+KeyError: 'do_train'
+Total number of data point sets: 50
+True
+ 1/50 model is being trained
+
+
+-----------------------------------------------------------------------------------------
+Exiting from training early
+-----------------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 252, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 126, in run_main_50
+    df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/testing.py", line 25, in run_test
+    modelstate = ModelState(seed=options["seed"],
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_state.py", line 19, in __init__
+    self.model = DynamicModel(model, nu, ny, options, **kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/dynamic_model.py", line 24, in __init__
+    self.m = VRNN_Gauss(model_options, options['device'])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_vrnn_gauss.py", line 72, in __init__
+    self.rnn = nn.GRU(self.h_dim + self.h_dim, self.h_dim, self.n_layers, bias)  # , batch_first=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 943, in __init__
+    super().__init__('GRU', *args, **kwargs)
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 132, in __init__
+    self.reset_parameters()
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/rnn.py", line 209, in reset_parameters
+    init.uniform_(weight, -stdv, stdv)
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/init.py", line 137, in uniform_
+    return _no_grad_uniform_(tensor, a, b)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/init.py", line 14, in _no_grad_uniform_
+    return tensor.uniform_(a, b)
+           ^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Total number of data point sets: 50
+True
+ 1/50 model is being trained
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 19.922
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.077	Val Loss: 18.470
+
+
+-----------------------------------------------------------------------------------------
+Exiting from training early
+-----------------------------------------------------------------------------------------
+Model parameters: 105932
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 252, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 126, in run_main_50
+    df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/testing.py", line 62, in run_test
+    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/dynamic_model.py", line 56, in generate
+    y_sample, y_sample_mu, y_sample_sigma = self.m.generate(u)
+                                            ^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_vrnn_gauss.py", line 149, in generate
+    phi_z_t = self.phi_z(z_t)
+              ^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+    ^^^^^
+KeyboardInterrupt
+Total number of data point sets: 50
+True
+ 1/50 model is being trained
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 20.046
+Train Epoch: [    0/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.198	Val Loss: 18.931
+Train Epoch: [    1/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 18.189
+Train Epoch: [    2/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 16.741
+Train Epoch: [    3/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 15.465
+Exception ignored in: <function _releaseLock at 0x7f60d8d16660>
+Traceback (most recent call last):
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/logging/__init__.py", line 237, in _releaseLock
+    def _releaseLock():
+    
+KeyboardInterrupt: 
+Train Epoch: [    4/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 14.151
+Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 12.744
+Train Epoch: [    5/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 11.317	Val Loss: 11.725
+Train Epoch: [    6/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 11.306
+Train Epoch: [    7/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 9.900
+Train Epoch: [    8/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 8.498
+Train Epoch: [    9/  750], Batch [     1/     1 (100%)]	Learning rate: 1.00e-03	Loss: 7.129
+
+
+-----------------------------------------------------------------------------------------
+Exiting from training early
+-----------------------------------------------------------------------------------------
+Model parameters: 105932
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 252, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 126, in run_main_50
+    df = testing.run_test(options, loaders, df, path_general, file_name_general+str(i))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/testing.py", line 62, in run_test
+    y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/dynamic_model.py", line 56, in generate
+    y_sample, y_sample_mu, y_sample_sigma = self.m.generate(u)
+                                            ^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/models/model_vrnn_gauss.py", line 152, in generate
+    dec_t = self.dec(torch.cat([phi_z_t, h[-1]], 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ruiyuanli/miniconda3/envs/deepsys/lib/python3.11/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Total number of data point sets: 50
+False
+ 1/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -26.488
+VAF = 0.159%
+RMSE y1 = 2.516
+ 2/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.806
+VAF = 67.783%
+RMSE y1 = 1.443
+ 3/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.796
+VAF = 67.357%
+RMSE y1 = 1.436
+ 4/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.770
+VAF = 69.066%
+RMSE y1 = 1.408
+ 5/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.787
+VAF = 67.748%
+RMSE y1 = 1.434
+ 6/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.813
+VAF = 66.398%
+RMSE y1 = 1.451
+ 7/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.747
+VAF = 70.230%
+RMSE y1 = 1.375
+ 8/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.757
+VAF = 69.246%
+RMSE y1 = 1.391
+ 9/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.777
+VAF = 68.524%
+RMSE y1 = 1.415
+ 10/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.783
+VAF = 68.092%
+RMSE y1 = 1.423
+ 11/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.782
+VAF = 68.862%
+RMSE y1 = 1.412
+ 12/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.778
+VAF = 67.956%
+RMSE y1 = 1.417
+ 13/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.782
+VAF = 69.103%
+RMSE y1 = 1.408
+ 14/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.788
+VAF = 68.051%
+RMSE y1 = 1.425
+ 15/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.772
+VAF = 68.951%
+RMSE y1 = 1.406
+ 16/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.775
+VAF = 68.557%
+RMSE y1 = 1.412
+ 17/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.797
+VAF = 68.437%
+RMSE y1 = 1.438
+ 18/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.760
+VAF = 69.659%
+RMSE y1 = 1.386
+ 19/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.884
+VAF = 63.703%
+RMSE y1 = 1.513
+ 20/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.769
+VAF = 69.128%
+RMSE y1 = 1.401
+ 21/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.768
+VAF = 68.850%
+RMSE y1 = 1.399
+ 22/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.779
+VAF = 68.484%
+RMSE y1 = 1.409
+ 23/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.798
+VAF = 67.559%
+RMSE y1 = 1.443
+ 24/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.827
+VAF = 67.247%
+RMSE y1 = 1.452
+ 25/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.762
+VAF = 69.268%
+RMSE y1 = 1.394
+ 26/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.819
+VAF = 66.854%
+RMSE y1 = 1.469
+ 27/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.803
+VAF = 67.493%
+RMSE y1 = 1.443
+ 28/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.789
+VAF = 68.636%
+RMSE y1 = 1.421
+ 29/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.802
+VAF = 67.951%
+RMSE y1 = 1.439
+ 30/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.809
+VAF = 66.777%
+RMSE y1 = 1.456
+ 31/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.792
+VAF = 68.217%
+RMSE y1 = 1.431
+ 32/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.762
+VAF = 68.605%
+RMSE y1 = 1.391
+ 33/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.766
+VAF = 69.915%
+RMSE y1 = 1.400
+ 34/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.772
+VAF = 68.390%
+RMSE y1 = 1.414
+ 35/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.786
+VAF = 68.773%
+RMSE y1 = 1.422
+ 36/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.794
+VAF = 68.026%
+RMSE y1 = 1.433
+ 37/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.760
+VAF = 69.232%
+RMSE y1 = 1.397
+ 38/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.795
+VAF = 67.484%
+RMSE y1 = 1.432
+ 39/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.787
+VAF = 68.107%
+RMSE y1 = 1.421
+ 40/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.831
+VAF = 66.059%
+RMSE y1 = 1.470
+ 41/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.764
+VAF = 69.325%
+RMSE y1 = 1.392
+ 42/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.779
+VAF = 68.737%
+RMSE y1 = 1.414
+ 43/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.882
+VAF = 64.746%
+RMSE y1 = 1.502
+ 44/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.791
+VAF = 68.392%
+RMSE y1 = 1.426
+ 45/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.794
+VAF = 67.817%
+RMSE y1 = 1.432
+ 46/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.800
+VAF = 67.661%
+RMSE y1 = 1.436
+ 47/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.775
+VAF = 68.624%
+RMSE y1 = 1.410
+ 48/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.804
+VAF = 67.654%
+RMSE y1 = 1.445
+ 49/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.832
+VAF = 66.128%
+RMSE y1 = 1.467
+ 50/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.810
+VAF = 67.578%
+RMSE y1 = 1.443
+   h_dim  z_dim  n_layers  seq_len_train  ...  model_param  marginal_likeli        vaf      rmse
+0     70      5         1             64  ...       105932       -26.488499   0.158528  2.515986
+0     70      5         1             64  ...       105932        -1.806381  67.783368  1.443051
+0     70      5         1             64  ...       105932        -1.795573  67.356750  1.435781
+0     70      5         1             64  ...       105932        -1.770209  69.065697  1.408139
+0     70      5         1             64  ...       105932        -1.786615  67.748455  1.433759
+0     70      5         1             64  ...       105932        -1.813433  66.397527  1.450663
+0     70      5         1             64  ...       105932        -1.747246  70.229688  1.375081
+0     70      5         1             64  ...       105932        -1.757056  69.245716  1.390546
+0     70      5         1             64  ...       105932        -1.776880  68.523907  1.414868
+0     70      5         1             64  ...       105932        -1.783254  68.091855  1.423012
+0     70      5         1             64  ...       105932        -1.781670  68.862243  1.411698
+0     70      5         1             64  ...       105932        -1.778395  67.956324  1.416952
+0     70      5         1             64  ...       105932        -1.781599  69.102539  1.407638
+0     70      5         1             64  ...       105932        -1.787572  68.051300  1.424547
+0     70      5         1             64  ...       105932        -1.771793  68.950599  1.406209
+0     70      5         1             64  ...       105932        -1.774614  68.556856  1.411854
+0     70      5         1             64  ...       105932        -1.796832  68.437228  1.437788
+0     70      5         1             64  ...       105932        -1.760258  69.658746  1.386413
+0     70      5         1             64  ...       105932        -1.884291  63.703354  1.512696
+0     70      5         1             64  ...       105932        -1.769070  69.127834  1.401332
+0     70      5         1             64  ...       105932        -1.768467  68.850395  1.398913
+0     70      5         1             64  ...       105932        -1.778594  68.483622  1.408596
+0     70      5         1             64  ...       105932        -1.798232  67.559071  1.442945
+0     70      5         1             64  ...       105932        -1.826720  67.246767  1.452002
+0     70      5         1             64  ...       105932        -1.761898  69.268157  1.393712
+0     70      5         1             64  ...       105932        -1.818948  66.854305  1.469183
+0     70      5         1             64  ...       105932        -1.803260  67.492720  1.443402
+0     70      5         1             64  ...       105932        -1.788697  68.635530  1.420977
+0     70      5         1             64  ...       105932        -1.801559  67.951453  1.438895
+0     70      5         1             64  ...       105932        -1.808989  66.776576  1.456026
+0     70      5         1             64  ...       105932        -1.792077  68.216636  1.431248
+0     70      5         1             64  ...       105932        -1.762333  68.605234  1.390812
+0     70      5         1             64  ...       105932        -1.765638  69.914758  1.399924
+0     70      5         1             64  ...       105932        -1.772352  68.389805  1.413740
+0     70      5         1             64  ...       105932        -1.786277  68.772709  1.421864
+0     70      5         1             64  ...       105932        -1.793867  68.026489  1.433125
+0     70      5         1             64  ...       105932        -1.759916  69.231892  1.397250
+0     70      5         1             64  ...       105932        -1.795295  67.484337  1.432499
+0     70      5         1             64  ...       105932        -1.786892  68.106632  1.421290
+0     70      5         1             64  ...       105932        -1.831209  66.059410  1.470056
+0     70      5         1             64  ...       105932        -1.764130  69.324970  1.391587
+0     70      5         1             64  ...       105932        -1.778586  68.737110  1.414275
+0     70      5         1             64  ...       105932        -1.881728  64.746237  1.501693
+0     70      5         1             64  ...       105932        -1.790540  68.392241  1.426054
+0     70      5         1             64  ...       105932        -1.794022  67.816783  1.432296
+0     70      5         1             64  ...       105932        -1.799680  67.661229  1.436062
+0     70      5         1             64  ...       105932        -1.774772  68.623516  1.410460
+0     70      5         1             64  ...       105932        -1.804090  67.654024  1.445218
+0     70      5         1             64  ...       105932        -1.831545  66.128010  1.467496
+0     70      5         1             64  ...       105932        -1.809563  67.578425  1.443130
+
+[50 rows x 11 columns]
+Total ime of file execution: 0.0: 5:57 [h:min:sec]
+Mon Sep 25 11:15:28 2023
+Total number of data point sets: 50
+False
+ 1/50 model is being trained
+Traceback (most recent call last):
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 252, in <module>
+    run_main_50(options, path_general, file_name_general)
+  File "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/main_50.py", line 143, in run_main_50
+    all_df[i] = df
+                ^^
+UnboundLocalError: cannot access local variable 'df' where it is not associated with a value
+Total number of data point sets: 50
+False
+ 1/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.798
+VAF = 67.240%
+RMSE y1 = 1.437
+ 2/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.778
+VAF = 68.283%
+RMSE y1 = 1.413
+ 3/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.806
+VAF = 66.909%
+RMSE y1 = 1.451
+ 4/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.765
+VAF = 68.828%
+RMSE y1 = 1.402
+ 5/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.784
+VAF = 67.918%
+RMSE y1 = 1.429
+ 6/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.828
+VAF = 66.895%
+RMSE y1 = 1.465
+ 7/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.763
+VAF = 69.093%
+RMSE y1 = 1.391
+ 8/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.782
+VAF = 68.331%
+RMSE y1 = 1.423
+ 9/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.761
+VAF = 69.535%
+RMSE y1 = 1.392
+ 10/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.760
+VAF = 68.675%
+RMSE y1 = 1.398
+ 11/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.757
+VAF = 69.948%
+RMSE y1 = 1.379
+ 12/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.793
+VAF = 67.463%
+RMSE y1 = 1.435
+ 13/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.791
+VAF = 67.993%
+RMSE y1 = 1.423
+ 14/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.811
+VAF = 67.285%
+RMSE y1 = 1.451
+ 15/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.761
+VAF = 68.882%
+RMSE y1 = 1.393
+ 16/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.807
+VAF = 67.231%
+RMSE y1 = 1.447
+ 17/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.773
+VAF = 68.185%
+RMSE y1 = 1.409
+ 18/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.772
+VAF = 68.922%
+RMSE y1 = 1.397
+ 19/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.867
+VAF = 64.737%
+RMSE y1 = 1.492
+ 20/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.771
+VAF = 69.661%
+RMSE y1 = 1.401
+ 21/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.795
+VAF = 68.028%
+RMSE y1 = 1.436
+ 22/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.787
+VAF = 67.931%
+RMSE y1 = 1.424
+ 23/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.815
+VAF = 66.865%
+RMSE y1 = 1.459
+ 24/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.851
+VAF = 66.071%
+RMSE y1 = 1.483
+ 25/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.772
+VAF = 69.063%
+RMSE y1 = 1.405
+ 26/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.814
+VAF = 66.005%
+RMSE y1 = 1.463
+ 27/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.782
+VAF = 68.582%
+RMSE y1 = 1.417
+ 28/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.775
+VAF = 69.154%
+RMSE y1 = 1.404
+ 29/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.770
+VAF = 69.416%
+RMSE y1 = 1.399
+ 30/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.828
+VAF = 66.302%
+RMSE y1 = 1.476
+ 31/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.819
+VAF = 67.687%
+RMSE y1 = 1.456
+ 32/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.769
+VAF = 68.614%
+RMSE y1 = 1.401
+ 33/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.780
+VAF = 68.712%
+RMSE y1 = 1.420
+ 34/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.801
+VAF = 67.139%
+RMSE y1 = 1.448
+ 35/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.777
+VAF = 68.893%
+RMSE y1 = 1.411
+ 36/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.791
+VAF = 67.544%
+RMSE y1 = 1.427
+ 37/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.758
+VAF = 69.356%
+RMSE y1 = 1.397
+ 38/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.799
+VAF = 67.227%
+RMSE y1 = 1.437
+ 39/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.782
+VAF = 68.661%
+RMSE y1 = 1.412
+ 40/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.830
+VAF = 65.874%
+RMSE y1 = 1.468
+ 41/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.776
+VAF = 68.767%
+RMSE y1 = 1.410
+ 42/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.783
+VAF = 68.028%
+RMSE y1 = 1.421
+ 43/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.858
+VAF = 65.755%
+RMSE y1 = 1.477
+ 44/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.799
+VAF = 68.131%
+RMSE y1 = 1.434
+ 45/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.790
+VAF = 67.644%
+RMSE y1 = 1.426
+ 46/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.792
+VAF = 68.105%
+RMSE y1 = 1.427
+ 47/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.794
+VAF = 68.326%
+RMSE y1 = 1.434
+ 48/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.808
+VAF = 66.985%
+RMSE y1 = 1.451
+ 49/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.822
+VAF = 66.767%
+RMSE y1 = 1.456
+ 50/50 model is being trained
+Model parameters: 105932
+Marginal Likelihood / point = -1.810
+VAF = 67.440%
+RMSE y1 = 1.443
+   h_dim  z_dim  n_layers  seq_len_train  ...  model_param  marginal_likeli        vaf      rmse
+0     70      5         1             64  ...       105932        -1.798409  67.240330  1.436504
+0     70      5         1             64  ...       105932        -1.777522  68.283165  1.412741
+0     70      5         1             64  ...       105932        -1.805569  66.909055  1.450648
+0     70      5         1             64  ...       105932        -1.765122  68.827664  1.402466
+0     70      5         1             64  ...       105932        -1.784394  67.917926  1.428819
+0     70      5         1             64  ...       105932        -1.828339  66.895166  1.464983
+0     70      5         1             64  ...       105932        -1.762702  69.093058  1.390988
+0     70      5         1             64  ...       105932        -1.782057  68.331438  1.422749
+0     70      5         1             64  ...       105932        -1.761044  69.535355  1.391887
+0     70      5         1             64  ...       105932        -1.759790  68.675386  1.398092
+0     70      5         1             64  ...       105932        -1.757441  69.947897  1.379100
+0     70      5         1             64  ...       105932        -1.792800  67.463436  1.435358
+0     70      5         1             64  ...       105932        -1.790574  67.992660  1.422528
+0     70      5         1             64  ...       105932        -1.811256  67.285364  1.451356
+0     70      5         1             64  ...       105932        -1.760609  68.881883  1.392973
+0     70      5         1             64  ...       105932        -1.806505  67.230968  1.447203
+0     70      5         1             64  ...       105932        -1.773498  68.185176  1.408614
+0     70      5         1             64  ...       105932        -1.771754  68.922308  1.396959
+0     70      5         1             64  ...       105932        -1.867400  64.736756  1.492004
+0     70      5         1             64  ...       105932        -1.770975  69.661033  1.401262
+0     70      5         1             64  ...       105932        -1.795326  68.027944  1.435775
+0     70      5         1             64  ...       105932        -1.786966  67.931133  1.424264
+0     70      5         1             64  ...       105932        -1.814634  66.865083  1.458806
+0     70      5         1             64  ...       105932        -1.850991  66.070504  1.483299
+0     70      5         1             64  ...       105932        -1.771572  69.063062  1.405172
+0     70      5         1             64  ...       105932        -1.814349  66.005324  1.463360
+0     70      5         1             64  ...       105932        -1.781959  68.582277  1.416931
+0     70      5         1             64  ...       105932        -1.774925  69.153527  1.404118
+0     70      5         1             64  ...       105932        -1.770374  69.416039  1.399389
+0     70      5         1             64  ...       105932        -1.828082  66.301742  1.476437
+0     70      5         1             64  ...       105932        -1.818813  67.686722  1.455718
+0     70      5         1             64  ...       105932        -1.769083  68.613758  1.400876
+0     70      5         1             64  ...       105932        -1.780396  68.712003  1.420031
+0     70      5         1             64  ...       105932        -1.801454  67.138930  1.447863
+0     70      5         1             64  ...       105932        -1.776508  68.892830  1.410613
+0     70      5         1             64  ...       105932        -1.791431  67.543872  1.426816
+0     70      5         1             64  ...       105932        -1.757824  69.356453  1.396846
+0     70      5         1             64  ...       105932        -1.799259  67.226639  1.436554
+0     70      5         1             64  ...       105932        -1.781877  68.661302  1.411658
+0     70      5         1             64  ...       105932        -1.830253  65.873512  1.467567
+0     70      5         1             64  ...       105932        -1.775733  68.766777  1.410335
+0     70      5         1             64  ...       105932        -1.783022  68.028327  1.421128
+0     70      5         1             64  ...       105932        -1.858222  65.754638  1.477422
+0     70      5         1             64  ...       105932        -1.799107  68.130713  1.434408
+0     70      5         1             64  ...       105932        -1.789972  67.643628  1.425704
+0     70      5         1             64  ...       105932        -1.791858  68.104556  1.426753
+0     70      5         1             64  ...       105932        -1.793670  68.326330  1.434223
+0     70      5         1             64  ...       105932        -1.807545  66.985354  1.450741
+0     70      5         1             64  ...       105932        -1.822068  66.767027  1.456049
+0     70      5         1             64  ...       105932        -1.809763  67.439853  1.442607
+
+[50 rows x 11 columns]
+Total ime of file execution: 0.0: 5:52 [h:min:sec]
+Mon Sep 25 11:34:39 2023

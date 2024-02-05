@@ -3,6 +3,16 @@ import torch
 import numpy as np
 import os
 
+# %% plot the estimated  z and the the input u, and also the output y
+'''
+Alright this should be planned later cause I will save the test data first
+u: the input signal
+y: the true output
+z: the estimated state
+x: the true(KF) state
+''' 
+
+
 
 # %% plots the resulting time sequence
 def plot_time_sequence_uncertainty(data_y_true, data_y_sample, label_y, options, path_general, file_name_general,
@@ -70,6 +80,8 @@ def plot_time_sequence_uncertainty(data_y_true, data_y_sample, label_y, options,
     if options['showfig']:
         plt.show()
     plt.close(1)
+
+
 
 
 # %% plot and save the loss curve

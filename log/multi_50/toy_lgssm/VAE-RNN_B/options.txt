@@ -11,6 +11,7 @@
  "savefig": true,
  "known_parameter": "B",
  "train_rounds": 50,
+ "start_from": 33,
  "device": "cpu",
  "dataset_options": {
   "y_dim": 1,

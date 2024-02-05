@@ -106,7 +106,9 @@ if __name__ == "__main__":
     # specify the partameter matrices for the linear system
     A = np.array([[0.7, 0.8], [0, 0.1]])
     B = np.array([[-1], [0.1]])
-    C = np.array([[1], [0]]).transpose()
+    # C = np.array([[1], [0]]).transpose()
+    C = np.array([[1], [-1]]).transpose()
+    
     Q = np.sqrt(0.25) * np.identity(2)
     R = np.sqrt(1) * np.identity(1)
 

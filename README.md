@@ -48,3 +48,10 @@ For the Wiener Hammerstein system we refer to the original website (see readme i
 In order to extend for more datasets the dataset has to be provided in a specific format and added in the [/data/loader.py](https://github.com/dgedon/DeepSSM_SysID/blob/master/data/loader.py).
 A training, validation and test dataset has to be provided as numpy arrays of shape (sequence length, signal dimension). 
 The sequence length is defined in the file [/options/dataset_options.py](https://github.com/dgedon/DeepSSM_SysID/blob/master/options/dataset_options.py).
+
+
+
+## Arguments used to run main_50.py
+ ```python
+ python main_50.py  --model VAE-RNN-Gauss --known_parameter None --train_rounds 16 --start_from 15 --logdir "multi_correct_para"   --do_test "True"  --h_dim 50 --z_dim 5
+ ```
