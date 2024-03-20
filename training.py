@@ -1,6 +1,6 @@
 import os
 import torch
-# import torch.nn as nn
+import torch.nn as nn
 import torch.utils
 import torch.utils.data
 import numpy as np
@@ -44,6 +44,8 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
             loss_ = modelstate.model(u, y)
             # NN optimization
             loss_.backward()
+            # apply gradient clipping in case of the gradient vanishing / explosion happends
+            nn.utils.clip_grad_norm_(modelstate.model.parameters(), max_norm=1.0)
             modelstate.optimizer.step()
 
             total_batches += u.size()[0]
@@ -76,7 +78,11 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
 
         # output parameter
         best_epoch = 0
-
+        path = path_general + 'model/'
+        file_name = file_name_general + '_bestModel.ckpt'
+        
+        modelstate.save_model(0, vloss, time.time() - start_time, path, file_name)
+        
         for epoch in range(0, train_options.n_epochs + 1):
             # Train and validate
             train(epoch)  # model, train_options, loader_train, optimizer, epoch, lr)
@@ -87,12 +93,12 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
                 # Save losses
                 all_losses += [loss]
                 all_vlosses += [vloss]
-
-                if vloss < best_vloss:  # epoch == train_options.n_epochs:  #
+                if vloss <= best_vloss:  # epoch == train_options.n_epochs:  #
                     best_vloss = vloss
                     # save model
                     path = path_general + 'model/'
                     file_name = file_name_general + '_bestModel.ckpt'
+                    
                     modelstate.save_model(epoch, vloss, time.time() - start_time, path, file_name)
                     # torch.save(model.state_dict(), path + file_name)
                     best_epoch = epoch

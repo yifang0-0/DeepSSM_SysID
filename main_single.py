@@ -224,7 +224,7 @@ if __name__ == "__main__":
             'model': 'VAE-RNN-PHY', # options: 'VAE-RNN', 'VRNN-Gauss', 'VRNN-Gauss-I', 'VRNN-GMM', 'VRNN-GMM-I', 'STORN'
             'do_train': True,
             'do_test': True,
-            'logdir': 'single_phy_idmaC',
+            'logdir': 'single_phy_same_train_multi',
             'normalize': True,
             'seed': 1234,
             'optim': 'Adam',

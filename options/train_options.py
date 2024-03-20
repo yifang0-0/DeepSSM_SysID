@@ -1,5 +1,6 @@
 import argparse
 import torch
+import numpy as np
 
 '''
 parse_known_args return the new parser and the already know data
@@ -11,22 +12,7 @@ def get_train_options(dataset_name):
     train_parser.add_argument('--lr_scheduler_nstart', type=int, default=10, help='learning rate scheduler start epoch')
     train_parser.add_argument('--print_every', type=int, default=1, help='output print of training')
     train_parser.add_argument('--test_every', type=int, default=5, help='test during training after every n epoch')
-
-    """Not used datasets"""
-    """if dataset_name == 'cascaded_tank':
-        train_parser.add_argument('--n_epochs', type=int, default=500, help='number of epochs')
-        train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
-        train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
-        train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=4, help='check learning rater after') # 50/10
-        train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
-
-    elif dataset_name == 'f16gvt':
-        train_parser.add_argument('--n_epochs', type=int, default=500, help='number of epochs')
-        train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
-        train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
-        train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=10/2, help='check learning rater after')
-        train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')"""
-
+    
     if dataset_name == 'narendra_li':
         train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
         train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
@@ -41,6 +27,21 @@ def get_train_options(dataset_name):
         train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=10, help='check learning rater after')
         train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
         # train_parser.add_argument('--unknown_parameter', type=int, default=1, help='0 is the normal training, 1 means linear matrix B is known')
+    
+    elif dataset_name == 'toy_lgssm_5_pre':
+        train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
+        train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
+        train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
+        train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=5, help='check learning rater after')
+        train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
+        
+    elif dataset_name == 'toy_lgssm_2dy_5_pre':
+        train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
+        train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
+        train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
+        train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=10, help='check learning rater after')
+        train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
+
 
     elif dataset_name == 'wiener_hammerstein':
         train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
@@ -84,12 +85,33 @@ def get_main_options():
     model_parser.add_argument('--showfig', metavar = '', type=bool, default=False)
     model_parser.add_argument('--savefig', metavar = '', type=bool, default=False)
     model_parser.add_argument('--known_parameter', metavar = '', type=str, default='None')
-    model_parser.add_argument('--train_rounds', metavar = '', type=int, default=50)
-    model_parser.add_argument('--start_from', metavar = '', type=int, default=0)
+    # model_parser.add_argument('--train_rounds', metavar = '', type=int, default=50)
+    # model_parser.add_argument('--start_from', metavar = '', type=int, default=0)
     
     model_options, unknown = model_parser.parse_known_args()
     print(model_options)
     return model_options
+
+
+def get_system_options(dataset_name):
+    if dataset_name == 'toy_lgssm_5_pre':
+        lgssm_system_parameter = {}
+        lgssm_system_parameter['A'] = np.array([[0.7, 0.8], [0, 0.1]])
+        lgssm_system_parameter['B'] = np.array([[-1], [0.1]])
+        lgssm_system_parameter['C'] = np.array([[1], [0]]).transpose()
+        lgssm_system_parameter['sigma_state'] = np.sqrt(0.25)
+        lgssm_system_parameter['sigma_out'] = np.sqrt(1)
+    
+    elif dataset_name == 'toy_lgssm_2dy_5_pre':
+        lgssm_system_parameter = {}
+        lgssm_system_parameter['A'] = np.array([[0.7, 0.8], [0, 0.1]])
+        lgssm_system_parameter['B'] = np.array([[-1], [0.1]])
+        lgssm_system_parameter['C'] = np.array([[1, 0], [0, 1]]).transpose()
+        lgssm_system_parameter['sigma_state'] = np.sqrt(0.25)
+        lgssm_system_parameter['sigma_out'] = np.sqrt(1)
+    else:
+        lgssm_system_parameter = {}
+    return lgssm_system_parameter
 
 
 def get_dataset_options(dataset_name):
@@ -131,6 +153,25 @@ def get_dataset_options(dataset_name):
         dataset_parser.add_argument('--seq_len_val', type=int, default=64, help='validation sequence length')  # 512
         dataset_options, unknown = dataset_parser.parse_known_args()
 
+    elif dataset_name == 'toy_lgssm_5_pre':
+        dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: lgssm')
+        dataset_parser.add_argument('--y_dim', type=int, default=1, help='dimension of y')
+        dataset_parser.add_argument('--u_dim', type=int, default=1, help='dimension of u')
+        dataset_parser.add_argument('--seq_len_train', type=int, default=64, help='training sequence length')
+        dataset_parser.add_argument('--seq_len_test', type=int, default=None, help='test sequence length')
+        dataset_parser.add_argument('--seq_len_val', type=int, default=64, help='validation sequence length')  # 512
+        dataset_options, unknown = dataset_parser.parse_known_args()
+    
+    elif dataset_name == 'toy_lgssm_2dy_5_pre':
+        dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: lgssm')
+        dataset_parser.add_argument('--y_dim', type=int, default=2, help='dimension of y')
+        dataset_parser.add_argument('--u_dim', type=int, default=1, help='dimension of u')
+        dataset_parser.add_argument('--seq_len_train', type=int, default=64, help='training sequence length')
+        dataset_parser.add_argument('--seq_len_test', type=int, default=None, help='test sequence length')
+        dataset_parser.add_argument('--seq_len_val', type=int, default=64, help='validation sequence length')  # 512
+        dataset_options, unknown = dataset_parser.parse_known_args()
+
+
     elif dataset_name == 'wiener_hammerstein':
         dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: wiener hammerstein')
         dataset_parser.add_argument('--y_dim', type=int, default=1, help='dimension of y')
@@ -167,6 +208,16 @@ def get_model_options(model_type, dataset_name, dataset_options):
     if dataset_name == 'narendra_li':
         model_parser.add_argument('--h_dim', type=int, default=60, help='dimension of det. latent variable h')
         model_parser.add_argument('--z_dim', type=int, default=10, help='dimension of stoch. latent variable')
+        model_parser.add_argument('--n_layers', type=int, default=1, help='number of RNN layers (GRU)')
+        
+    elif dataset_name == 'toy_lgssm_5_pre':
+        model_parser.add_argument('--h_dim', type=int, default=10, help='dimension of det. latent variable h')
+        model_parser.add_argument('--z_dim', type=int, default=2, help='dimension of stoch. latent variable')
+        model_parser.add_argument('--n_layers', type=int, default=1, help='number of RNN layers (GRU)')
+        
+    elif dataset_name == 'toy_lgssm_2dy_5_pre':
+        model_parser.add_argument('--h_dim', type=int, default=10, help='dimension of det. latent variable h')
+        model_parser.add_argument('--z_dim', type=int, default=2, help='dimension of stoch. latent variable')
         model_parser.add_argument('--n_layers', type=int, default=1, help='number of RNN layers (GRU)')
 
     elif dataset_name == 'toy_lgssm':

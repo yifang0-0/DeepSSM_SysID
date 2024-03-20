@@ -64,6 +64,15 @@ def save_options(options_in, path, file_name):
         options['train_options'] = vars(options['train_options'])
     if 'test_options' in options:
         options['test_options'] = vars(options['test_options'])
+        
+    if 'system_options' in options:
+        for key in options['system_options']:
+            if isinstance(options['system_options'][key], np.ndarray):    
+                listed_value = options['system_options'][key].tolist()
+                options['system_options'][key] = listed_value
+        # options['system_options'] = vars(options['system_options'])
+        
+        
 
     with open(os.path.join(path, file_name), "w+") as f:
         f.write(json.dumps(options, indent=1))

@@ -18,6 +18,8 @@ class DynamicModel(nn.Module):
         self.zero_initial_state = False
 
         model_options = options['model_options']
+        system_options = options['system_options']
+        
 
         # initialize the model
         if model == 'VRNN-Gauss':
@@ -35,7 +37,7 @@ class DynamicModel(nn.Module):
         elif model == 'STORN-PHY':
             self.m = STORN_PHY(model_options, options['device'])
         elif model == 'VAE-RNN-PHY':
-            self.m = VAE_RNN_PHY(model_options, options['device'])
+            self.m = VAE_RNN_PHY(model_options, options['device'], system_options)
         elif model == 'VRNN-PHY':
             self.m = VRNN_PHY(model_options, options['device'])
         else:

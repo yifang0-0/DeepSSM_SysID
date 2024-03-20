@@ -22,8 +22,8 @@ def KF_MU(C, R, y, P, xhat):
     # TODO: check why the residual is calculated like this
     
     # updated (filtered) output estimate y(k|k)
-    yhat = C.dot(xhat)
-
+    yhat = C.dot(xhat).squeeze
+    # print(yhat.shape, xhat.shape, P.shape, K)
     return yhat, xhat, P, K
 
 
@@ -58,6 +58,7 @@ def run_kalman_filter(A, B, C, Q, R, u, y):
 
     for k in range(k_max):
         # measurement update
+        # print(C.shape, R.shape, y[:, :, k].shape, P.shape, yhat[:, k])
         yhat[:, k], xhat, P, K = KF_MU(C, R, y[:, :, k], P, xhat)
 
         # time update

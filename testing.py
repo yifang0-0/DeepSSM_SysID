@@ -116,7 +116,7 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
         
         # convert to numpy for evaluation
 
-    
+    '''
     # %% get the kalman loss
     A = np.array([[0.7, 0.8], [0, 0.1]])
     B = np.array([[-1], [0.1]])
@@ -135,7 +135,16 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
                                       x_limit_show=[0, temp],
                                       path_general=path_general,
                                       file_name_general=file_name_general)
+    
+    # %% compute performance values for kalman filtering
+    print('\nPerformance parameter of KF:')
+    # compute VAF
+    vaf_KF = de.compute_vaf(y_test_noisy, np.expand_dims(y_kalman, 0), doprint=True)
+    # compute RMSE
+    rmse_KF = de.compute_rmse(y_test_noisy, np.expand_dims(y_kalman, 0), doprint=True)
 
+    '''
+   
     # %% compute performance values
 
     # compute marginal likelihood (same as for predictive distribution loss in training)
@@ -148,36 +157,41 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
 
     # compute RMSE
     rmse = de.compute_rmse(y_test_noisy, y_sample_mu, doprint=True)
-# %% compute performance values for kalman filtering
-    print('\nPerformance parameter of KF:')
-    # compute VAF
-    vaf_KF = de.compute_vaf(y_test_noisy, np.expand_dims(y_kalman, 0), doprint=True)
-    # compute RMSE
-    rmse_KF = de.compute_rmse(y_test_noisy, np.expand_dims(y_kalman, 0), doprint=True)
+
 
     print('\nModel: mean VAF = {}'.format(vaf))
     print('Model: mean RMSE = {}'.format(rmse))
     print('Model: mean log Likelihood = {}'.format(marginal_likeli))
 
-    print('\nKF: mean VAF = {}'.format(vaf_KF))
-    print('KF: mean RMSE = {}'.format(rmse_KF))
+    # print('\nKF: mean VAF = {}'.format(vaf_KF))
+    # print('KF: mean RMSE = {}'.format(rmse_KF))
     
     print("y_test.shape,y_test_noisy.shape,y_sample_mu.shape,z_df.shape\n",y_test.shape,y_test_noisy.shape,y_sample_mu.shape,z.shape)
     
     
     # %% save the y and y^, y_mu and y_sigma
     output_save_path = path_general+file_name_general+".csv"
-    data_output = {'u_test':u_test.reshape(5000,),'y_true':y_test.reshape(5000,),'y_true_with_noise': y_test_noisy.reshape(5000,), 'y_predict_mu': y_sample_mu.reshape(5000,),'y_predict_sigma':y_sample_sigma.reshape(5000,)}
+    data_output = pd.DataFrame()
+    # ,'y_true':y_test.reshape(5000,),'y_true_with_noise': y_test_noisy.reshape(5000,), 'y_predict_mu': y_sample_mu.reshape(5000,),'y_predict_sigma':y_sample_sigma.reshape(5000,)
     
-    z=np.transpose(np.squeeze(z))
-    column_name = ["z_"+str(i) for i in range(z.shape[1])]
-    print(column_name,z.shape)
-    z_df = pd.DataFrame(z, columns=column_name)
-    for column_name in z_df.columns:
-        data_output.update({column_name: z_df[column_name]})
+    value_list = [u_test, y_test, y_test_noisy, y_sample_mu, y_sample_sigma, z]
+    value_name_list = ['u_test',"y_test", "y_test_noisy", "y_sample_mu", "y_sample_sigma", "z"]
+    
+    
+    for v, v_name in zip(value_list,value_name_list):
+        v=np.transpose(np.squeeze(v))
+        if len(v.shape) == 1:
+            column_name = [v_name+'_0']
+        else:
+            column_name = [v_name+'_'+str(i) for i in range(v.shape[-1])]
+
+        v_df = pd.DataFrame(v, columns=column_name)
+        for column_name in v_df.columns:
+            data_output[column_name] = v_df[column_name]
+    
     
     # data_output = {'y_true':y_test.reshape(5000,),'y_true_with_noise': y_test_noisy.reshape(5000,), 'y_predict_mu': y_sample_mu.reshape(5000,),'y_predict_sigma':y_sample_sigma.reshape(5000,),'z_predict_mu': z_sample_mu.reshape(5000,),'z_predict_sigma':z_sample_sigma.reshape(5000,)}
-    print(y_test.shape,y_test_noisy.shape,y_sample_mu.shape,z_df.shape)
+    print(y_test.shape,y_test_noisy.shape,y_sample_mu.shape,z.shape)
     df_output = pd.DataFrame(data_output)
 
     df_output.to_csv(output_save_path)

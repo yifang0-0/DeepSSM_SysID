@@ -79,23 +79,6 @@ def create_toy_lgssm_datasets(seq_len_train=None, seq_len_val=None, seq_len_test
     y_train = run_toy_lgssm_sim(u_train, A, B, C, sigma_state, 0) + sigma_out * np.random.randn(1, k_max_train)
     y_val = run_toy_lgssm_sim(u_val, A, B, C, sigma_state, 0) + sigma_out * np.random.randn(1, k_max_val)
 
-    '''
-    # load the existing training and validation dataset, notice that unlike the test dataset, where data is with the shape of (5000,1), in the training and validation dataset, the data was saved as the same shape as the original randomly code. So the shape is (1,5000), but it is fine because the model also has diffrent loading methods. 
-    # dataset generating code is in the file output_analyse.ipynb under the main folder
-    
-    train_file_path = 'data/Toy_LGSSM/toy_lgssm_traindata.npz'
-    val_file_path = 'data/Toy_LGSSM/toy_lgssm_valdata.npz'
-    train_data = np.load(train_file_path)
-    val_data = np.load(val_file_path)
-    u_train = train_data['u_train'][0:k_max_train]
-    y_train = train_data['y_train'][0:k_max_train]
-    u_val = val_data['u_val'][0:k_max_val]
-    y_val = val_data['y_val'][0:k_max_val]
-    
-    '''  
-
-      
-
     # see if we need to multiply B and u (the situation that we know the control-input model B)
     if "known_parameter" in kwargs:
         if kwargs["known_parameter"] == 'B':

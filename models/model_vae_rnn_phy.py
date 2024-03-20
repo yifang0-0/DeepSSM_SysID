@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 import torch.distributions as tdist
-
+import numpy as np
 """implementation of the Variational Auto Encoder Recurrent Neural Network (VAE-RNN) from 
 https://backend.orbit.dtu.dk/ws/portalfiles/portal/160548008/phd475_Fraccaro_M.pdf and partly from
 https://arxiv.org/pdf/1710.05741.pdf using unimodal isotropic gaussian distributions for inference, prior, and 
@@ -10,7 +10,7 @@ generating models."""
 
 
 class VAE_RNN_PHY(nn.Module):
-    def __init__(self, param, device, bias=False):
+    def __init__(self, param, device, sys_param={}, bias=False):
         super(VAE_RNN_PHY, self).__init__()
 
         self.y_dim = param.y_dim
@@ -19,7 +19,8 @@ class VAE_RNN_PHY(nn.Module):
         self.z_dim = param.z_dim
         self.n_layers = param.n_layers
         self.device = device
-
+        self.sys_param = sys_param
+        print("self.sys_param['C']",self.sys_param['C'],"self.sys_param['np_log_out']",np.log(self.sys_param['sigma_out']))
         # feature-extracting transformations (phi_y, phi_u and phi_z)
         self.phi_y = nn.Sequential(
             nn.Linear(self.y_dim, self.h_dim),
@@ -97,11 +98,11 @@ class VAE_RNN_PHY(nn.Module):
             # constant_matrix = torch.tensor([[1, 0]], dtype=torch.float32, device=self.device).t()
             # self.constant_matrix = nn.Parameter(constant_matrix, requires_grad=False)
         
-            dec_t = torch.matmul(z_t, torch.tensor([[1, 0]], dtype=torch.float32,device=self.device).t())
+            dec_t = torch.matmul(z_t, torch.tensor(self.sys_param['C'], dtype=torch.float32,device=self.device).t())
             
             dec_mean_t = dec_t
-            dec_logvar_t = torch.tensor([0], dtype=torch.float32,device=self.device)
-            z_var_t = torch.matmul(enc_logvar_t.exp().sqrt(), torch.tensor([[1, 0]], dtype=torch.float32,device=self.device).t())
+            dec_logvar_t = torch.tensor(np.log(self.sys_param['sigma_out']), dtype=torch.float32,device=self.device)
+            z_var_t = torch.matmul(enc_logvar_t.exp().sqrt(), torch.tensor(self.sys_param['C'], dtype=torch.float32,device=self.device).t())
             pred_dist = tdist.Normal(dec_mean_t, dec_logvar_t.exp().sqrt()+z_var_t)
 
             # recurrence: u_t+1 -> h_t+1
@@ -150,10 +151,10 @@ class VAE_RNN_PHY(nn.Module):
             # constant_matrix = torch.tensor([[1, 0]], dtype=torch.float32,device=self.device).t()
             # self.constant_matrix = nn.Parameter(constant_matrix, requires_grad=False)
         
-            dec_t = torch.matmul(z_t, torch.tensor([[1, 0]], dtype=torch.float32,device=self.device).t())
+            dec_t = torch.matmul(z_t, torch.tensor(self.sys_param['C'], dtype=torch.float32,device=self.device).t())
             dec_mean_t = dec_t
-            dec_logvar_t = torch.tensor([0], dtype=torch.float32,device=self.device)
-            z_var_t = torch.matmul(prior_logvar_t.exp().sqrt(), torch.tensor([[1, 0]], dtype=torch.float32,device=self.device).t())
+            dec_logvar_t = torch.tensor(self.sys_param['sigma_out'], dtype=torch.float32,device=self.device)
+            z_var_t = torch.matmul(prior_logvar_t.exp().sqrt(), torch.tensor(self.sys_param['C'], dtype=torch.float32,device=self.device).t())
 
             # store the samples
             temp = tdist.Normal(dec_mean_t, dec_logvar_t.exp().sqrt()+z_var_t)
