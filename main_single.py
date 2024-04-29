@@ -19,9 +19,6 @@ import pandas as pd
 import os
 import torch
 import time
-import sys
-import matplotlib.pyplot as plt
-import argparse
 import subprocess
 import io
 # os.chdir('../')
@@ -49,6 +46,7 @@ def run_main_single(options, path_general, file_name_general):
     print(time.strftime("%c"))
     
    # get correct computing device
+
     if torch.cuda.is_available():
         
         # get the usage of gpu memory from command "nvidia-smi" 
@@ -63,17 +61,22 @@ def run_main_single(options, path_general, file_name_general):
         
         # run the task on the selected GPU
         torch.cuda.set_device(idx)
-        device = torch.device('cuda') 
-        gpu_name = torch.cuda.get_device_name(idx)
-        print(f"Using GPU {idx}: {gpu_name}") 
+        if int(gpu_df.iloc[idx]['memory.free'])<2000:
+            device = torch.device('cpu')
+        else:
+            device = torch.device('cuda') 
+            gpu_name = torch.cuda.get_device_name(idx)
+            print(f"Using GPU {idx}: {gpu_name}") 
     else:
         device = torch.device('cpu')
     print('Device: {}'.format(device))
 
 
+
     # get the options
     options['device'] = device
     options['dataset_options'] = dynsys_params.get_dataset_options(options['dataset'])
+    options['system_options'] = dynsys_params.get_system_options(options['dataset'],options['dataset_options'])
     options['model_options'] = model_params.get_model_options(options['model'], options['dataset'],
                                                               options['dataset_options'])
     options['train_options'] = train_params.get_train_options(options['dataset'])
@@ -83,9 +86,25 @@ def run_main_single(options, path_general, file_name_general):
     print('\n\tModel Type: {}'.format(options['model']))
     print('\tDynamic System: {}\n'.format(options['dataset']))
 
-    file_name_general = file_name_general + '_h{}_z{}_n{}'.format(options['model_options'].h_dim,
+    if options["dataset"] == "f16gvt":
+        file_name_general = file_name_general + '_h{}_z{}_n{}_{}'.format(options['model_options'].h_dim,
                                                                   options['model_options'].z_dim,
-                                                                  options['model_options'].n_layers)
+                                                                  options['model_options'].n_layers,
+                                                                  options['dataset_options'].input_type + str(options['dataset_options'].input_lev))
+    else:
+        file_name_general = file_name_general + '_h{}_z{}_n{}'.format(options['model_options'].h_dim,
+                                                                  options['model_options'].z_dim,
+                                                                 options['model_options'].n_layers)
+        
+    if "mpnt_wt" in options["model_options"]:
+        file_name_general = file_name_general + '_mpw'+str( int(options["model_options"].mpnt_wt*10))
+        
+    if "A_prt_idx" in options["dataset_options"]:
+        file_name_general = file_name_general + '_A'+str(options["dataset_options"].A_prt_idx)
+        
+    if "B_prt_idx" in options["dataset_options"]:
+        file_name_general = file_name_general + '_B'+str(options["dataset_options"].B_prt_idx)
+
     path = path_general + 'data/'
     # check if path exists and create otherwise
     if not os.path.exists(path):
@@ -98,7 +117,8 @@ def run_main_single(options, path_general, file_name_general):
                                   dataset_options=options["dataset_options"],
                                   train_batch_size=options["train_options"].batch_size,
                                   test_batch_size=options["test_options"].batch_size, 
-                                  known_parameter=options["known_parameter"])
+                                  known_parameter=options["known_parameter"],
+                                  ith_round = 0)
 
     # Compute normalizers
     if options["normalize"]:
@@ -126,11 +146,10 @@ def run_main_single(options, path_general, file_name_general):
 
         
 
-    # allocation
-    
+    # initialize the dataframe
+    df = {}
     
     if options['do_train']:
-        df = {}
         # train the model
         df = training.run_train(modelstate=modelstate,
                                 loader_train=loaders['train'],
@@ -139,8 +158,8 @@ def run_main_single(options, path_general, file_name_general):
                                 dataframe=df,
                                 path_general=path_general,
                                 file_name_general=file_name_general)
-        df = pd.DataFrame(df)
-
+        # df = pd.DataFrame(df)
+        
     if options['do_test']:
         # # test the model
         # df = testing.run_test(options, loaders, df, path_general, file_name_general)
@@ -150,13 +169,13 @@ def run_main_single(options, path_general, file_name_general):
         # test the model for 10 times
         # make sure df is in dataframe format
         df = pd.DataFrame({})
-        for i in range(10):
-            df_single = {}
-            # test the model
-            df_single = testing.run_test(options, loaders, df_single, path_general, file_name_general)
-            # make df_single a dataframe
-            df_single = pd.DataFrame(df_single)
-            df = pd.concat([df,df_single])
+        # for i in range(10):
+        df_single = {}
+        # test the model
+        df_single = testing.run_test(options, loaders, df, path_general, file_name_general)
+        # make df_single a dataframe
+        df_single = pd.DataFrame(df_single)
+        df = pd.concat([df,df_single])
             
         
     # %% save data
@@ -165,7 +184,6 @@ def run_main_single(options, path_general, file_name_general):
     # check if path exists and create otherwise
     if not os.path.exists(path):
         os.makedirs(path)
-
 
     # filename
     file_name = file_name_general + '.csv'
@@ -198,7 +216,7 @@ def run_main_single(options, path_general, file_name_general):
 
 if __name__ == "__main__":
     # set (high level) options dictionary, if the basic options are expected from the augment parser, we set OPTION_SETTING_MANUALLY = True, else we change the options directly from the python file.
-    OPTION_FROM_PARSER = False
+    OPTION_FROM_PARSER = True
     if OPTION_FROM_PARSER is True:
         options = {}
 
@@ -213,6 +231,8 @@ if __name__ == "__main__":
         options['optim'] = main_params_parser.optim
         options['showfig'] = main_params_parser.showfig
         options['savefig'] = main_params_parser.savefig
+        options['savelog'] = main_params_parser.savelog
+        options['saveoutput'] = main_params_parser.saveoutput
         options['known_parameter'] = main_params_parser.known_parameter
 
         # print("Encountered errors loading the main options of the training/testing task")
@@ -220,24 +240,27 @@ if __name__ == "__main__":
         
     else:
         options = {
-            'dataset': 'toy_lgssm',  # options: 'narendra_li', 'toy_lgssm', 'wiener_hammerstein'
-            'model': 'VAE-RNN-PHY', # options: 'VAE-RNN', 'VRNN-Gauss', 'VRNN-Gauss-I', 'VRNN-GMM', 'VRNN-GMM-I', 'STORN'
+            'dataset': 'toy_lgssm',  # options: 'f16gvt', 'narendra_li', 'toy_lgssm', 'wiener_hammerstein', 'industrobo','toy_lgssm_5_pre'
+            'model': 'VAE-RNN-PHYNN', # options: 'VAE-RNN', 'VRNN-Gauss', 'VRNN-Gauss-I', 'VRNN-GMM', 'VRNN-GMM-I', 'STORN', 'VAE-RNN-PHYNN'
             'do_train': True,
             'do_test': True,
-            'logdir': 'single_phy_same_train_multi',
+            'logdir': 'high_panelty', 
             'normalize': True,
             'seed': 1234,
             'optim': 'Adam',
-            'showfig': False,
+            'showfig': True,
             'savefig': True,
             'savelog': False,
+            'saveoutput':True,
             'known_parameter': 'None'
         }
 
     # get saving path
+    
     path_general = os.getcwd() + '/log/{}/{}/{}_{}/'.format(options['logdir'],
                                                          options['dataset'],
                                                          options['model'],options['known_parameter'] )
+        
 
     # get saving file names
     file_name_general = options['dataset']

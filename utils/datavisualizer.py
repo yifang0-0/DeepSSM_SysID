@@ -12,7 +12,47 @@ z: the estimated state
 x: the true(KF) state
 ''' 
 
+# %% simplified version of the plot
+def plot_time_sequence_uncertainty_simp(data_y_true, data_y_sample_mu, data_y_sample_std, label_y, options, path_general, file_name_general,
+                                   batch_show, x_limit_show, length = 140, start_index = 300):
 
+    # storage path
+    file_name = file_name_general + '_timeEval_'+label_y
+    path = path_general + 'timeEval/'
+    
+    x = np.linspace(start_index, start_index+length - 1, length)
+
+
+    mu = data_y_sample_mu[start_index:start_index+length]
+    std = data_y_sample_std[start_index:start_index+length]
+    # plot mean
+    plt.plot(mu, label=label_y+" Estimate")
+
+    # plot 3std around
+    plt.fill_between(x, mu, mu +  3 * std, alpha=0.3, facecolor='r')
+    plt.fill_between(x, mu, mu -  3 * std, alpha=0.3, facecolor='r')
+
+    mu = data_y_true[start_index:start_index+length]
+    # plot mean
+    plt.plot(mu, label=label_y+" True",color='b')
+
+
+
+    # Add labels and title
+    plt.ylabel('${}(k)$'.format(label_y))
+    plt.xlabel('time steps $k$')
+    # Add legend
+    plt.legend()
+
+    if options['savefig']:
+        # check if path exists and create otherwise
+        if not os.path.exists(path):
+            os.makedirs(path)
+        plt.savefig(path + file_name + '.png', format='png')
+    # plot model
+    if options['showfig']:
+        plt.show()
+    plt.close(1)
 
 # %% plots the resulting time sequence
 def plot_time_sequence_uncertainty(data_y_true, data_y_sample, label_y, options, path_general, file_name_general,
@@ -58,6 +98,7 @@ def plot_time_sequence_uncertainty(data_y_true, data_y_sample, label_y, options,
         # plot 3std around
         plt.fill_between(x, mu, mu + 3 * std, alpha=0.3, facecolor='r')
         plt.fill_between(x, mu, mu - 3 * std, alpha=0.3, facecolor='r')
+
 
         # plot settings
         plt.title('Output $y_{}(k)$, {} with (h,z,n)=({},{},{})'.format((j + 1),

@@ -34,6 +34,7 @@ def compute_normalizer(loader_train):
     y_mean = y_mean.numpy()
     u_var = u_var.numpy()
     y_var = y_var.numpy()
+    # print("u_mean: ", u_mean, " y_mean: ", y_mean)
 
     """u_normalizer = (torch.tensor(np.sqrt(u_var / total_batches) * variance_scaler),
                     torch.tensor(u_mean / total_batches))
@@ -42,6 +43,7 @@ def compute_normalizer(loader_train):
 
     u_normalizer = Normalizer1D(np.sqrt(u_var / total_batches) * variance_scaler, u_mean / total_batches)
     y_normalizer = Normalizer1D(np.sqrt(y_var / total_batches) * variance_scaler, y_mean / total_batches)
+
 
     return u_normalizer, y_normalizer
 

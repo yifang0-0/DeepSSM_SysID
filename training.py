@@ -5,7 +5,8 @@ import torch.utils
 import torch.utils.data
 import numpy as np
 import time
-
+import matplotlib as plt
+import utils.datavisualizer as dv
 
 def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_general, file_name_general):
     def validate(loader):
@@ -75,7 +76,7 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
 
         # Extract initial learning rate
         lr = train_options.init_lr
-
+    
         # output parameter
         best_epoch = 0
         path = path_general + 'model/'
@@ -144,5 +145,6 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
                   'train_time': time_el}
     # overall options
     dataframe.update(train_dict)
-
+    dv.plot_losscurve(dataframe, options, path_general, file_name_general)
+    
     return dataframe

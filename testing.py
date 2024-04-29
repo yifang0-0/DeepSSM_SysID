@@ -37,7 +37,7 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     file_name = file_name_general + '_bestModel.ckpt'
     modelstate.load_model(path, file_name)
     modelstate.model.to(options['device'])
-
+    print(path_general,file_name_general)
     # %% plot and save the loss curve
     dv.plot_losscurve(df, options, path_general, file_name_general)
 
@@ -61,13 +61,17 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     for i, (u_test, y_test) in enumerate(loaders['test']):
         # getting output distribution parameter only implemented for selected models
         u_test = u_test.to(options['device'])
-        
+        # print("the original size of u and y",u_test.shape,y_test.shape)
         # y_sample, y_sample_mu, y_sample_sigma, z_sample_mu, z_sample_sigma = modelstate.model.generate(u_test)
         # y_sample, y_sample_mu, y_sample_sigma= modelstate.model.generate(u_test)
         
-        
-        ## TODO: original code
-        y_sample, y_sample_mu, y_sample_sigma, z = modelstate.model.generate(u_test)
+        if  'toy_lgssm' in options['dataset']:
+            ## TODO: original code
+            y_sample, y_sample_mu, y_sample_sigma, z = modelstate.model.generate(u_test)
+            z = z.cpu().detach().numpy()
+        else:
+            y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+            
         # convert to cpu and to numpy for evaluation
         # samples data
         y_sample_mu = y_sample_mu.cpu().detach().numpy()
@@ -79,7 +83,7 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
         y_test = y_test.cpu().detach().numpy()
         y_sample = y_sample.cpu().detach().numpy()
         u_test = u_test.cpu().detach().numpy()
-        z = z.cpu().detach().numpy()
+
     # get noisy test data for narendra_li
     if options['dataset'] == 'narendra_li':
         # original test set is unnoisy -> get noisy test set
@@ -103,6 +107,12 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
         data_y_true = [y_test, np.sqrt(1) * np.ones_like(y_test)]
         data_y_sample = [y_sample_mu, y_sample_sigma]
         label_y = ['true, $\mu\pm3\sigma$', 'sample, $\mu\pm3\sigma$']
+    elif options['dataset'] == 'f16gvt':
+        # data_y_true = [y_test.transpose(0,2,1).reshape(-1,3).transpose(), np.sqrt(0.1) * np.ones_like(y_test.transpose(0,2,1).reshape(-1,3).transpose())]
+        # data_y_sample = [y_sample_mu.transpose(0,2,1).reshape(-1,3).transpose(), y_sample_sigma.transpose(0,2,1).reshape(-1,3).transpose()]
+        data_y_true = [y_test[:,0,:], np.sqrt(0.1) * np.ones_like(y_test[:,0,:])]
+        data_y_sample = [y_sample_mu[:,0,:], y_sample_sigma[:,0,:]]
+        label_y = ['true, $\mu\pm3\sigma$', 'sample, $\mu\pm3\sigma$']
     else:
         data_y_true = [y_test_noisy]
         data_y_sample = [y_sample_mu, y_sample_sigma]
@@ -114,37 +124,14 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     else:
         temp = 200
         
-        # convert to numpy for evaluation
-
-    '''
-    # %% get the kalman loss
-    A = np.array([[0.7, 0.8], [0, 0.1]])
-    B = np.array([[-1], [0.1]])
-    # C = np.array([[1], [0]]).transpose()
-    C = np.array([[1], [-1]]).transpose()
-    Q = np.sqrt(0.25) * np.identity(2)
-    R = np.sqrt(1) * np.identity(1)
-    y_kalman = run_kalman_filter(A, B, C, Q, R, u_test, y_test_noisy)
-    # plt.plot(x, y_kalman.squeeze(), label='y_1(k) Kalman filter', linestyle='dashed', color='k')
-    
-    dv.plot_time_sequence_uncertainty(data_y_true,
-                                      data_y_sample,
-                                      label_y,
-                                      options,
-                                      batch_show=0,
-                                      x_limit_show=[0, temp],
-                                      path_general=path_general,
-                                      file_name_general=file_name_general)
-    
-    # %% compute performance values for kalman filtering
-    print('\nPerformance parameter of KF:')
-    # compute VAF
-    vaf_KF = de.compute_vaf(y_test_noisy, np.expand_dims(y_kalman, 0), doprint=True)
-    # compute RMSE
-    rmse_KF = de.compute_rmse(y_test_noisy, np.expand_dims(y_kalman, 0), doprint=True)
-
-    '''
-   
+    # dv.plot_time_sequence_uncertainty(data_y_true,
+    #                                 data_y_sample,
+    #                                 label_y,
+    #                                 options,
+    #                                 batch_show=0,
+    #                                 x_limit_show=[0, 5000],
+    #                                 path_general=path_general,
+    #                                 file_name_general=file_name_general)
     # %% compute performance values
 
     # compute marginal likelihood (same as for predictive distribution loss in training)
@@ -158,43 +145,82 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     # compute RMSE
     rmse = de.compute_rmse(y_test_noisy, y_sample_mu, doprint=True)
 
+    # compute NRMSE
+    nrmse = de.compute_nrmse(y_test_noisy, y_sample_mu, doprint=True)
+
+
 
     print('\nModel: mean VAF = {}'.format(vaf))
     print('Model: mean RMSE = {}'.format(rmse))
+    print('Model: mean NRMSE = {}'.format(nrmse))
+    print('Model: mean std = {}'.format(np.mean(y_sample_sigma)))
     print('Model: mean log Likelihood = {}'.format(marginal_likeli))
 
     # print('\nKF: mean VAF = {}'.format(vaf_KF))
     # print('KF: mean RMSE = {}'.format(rmse_KF))
     
-    print("y_test.shape,y_test_noisy.shape,y_sample_mu.shape,z_df.shape\n",y_test.shape,y_test_noisy.shape,y_sample_mu.shape,z.shape)
+    print("y_test.shape,y_test_noisy.shape,y_sample_mu.shape\n",y_test.shape,y_test_noisy.shape,y_sample_mu.shape)
+    
     
     
     # %% save the y and y^, y_mu and y_sigma
-    output_save_path = path_general+file_name_general+".csv"
-    data_output = pd.DataFrame()
-    # ,'y_true':y_test.reshape(5000,),'y_true_with_noise': y_test_noisy.reshape(5000,), 'y_predict_mu': y_sample_mu.reshape(5000,),'y_predict_sigma':y_sample_sigma.reshape(5000,)
-    
-    value_list = [u_test, y_test, y_test_noisy, y_sample_mu, y_sample_sigma, z]
-    value_name_list = ['u_test',"y_test", "y_test_noisy", "y_sample_mu", "y_sample_sigma", "z"]
-    
-    
-    for v, v_name in zip(value_list,value_name_list):
-        v=np.transpose(np.squeeze(v))
-        if len(v.shape) == 1:
-            column_name = [v_name+'_0']
-        else:
-            column_name = [v_name+'_'+str(i) for i in range(v.shape[-1])]
 
-        v_df = pd.DataFrame(v, columns=column_name)
-        for column_name in v_df.columns:
-            data_output[column_name] = v_df[column_name]
-    
-    
+    if options["saveoutput"] == True:
+        output_save_path = path_general+file_name_general+"_estimation.csv"
+        data_output = pd.DataFrame()
+        # ,'y_true':y_test.reshape(5000,),'y_true_with_noise': y_test_noisy.reshape(5000,), 'y_predict_mu': y_sample_mu.reshape(5000,),'y_predict_sigma':y_sample_sigma.reshape(5000,)
+        
+        value_list = [u_test, y_test, y_test_noisy, y_sample_mu, y_sample_sigma]
+        value_name_list = ['u_test',"y_test", "y_test_noisy", "y_sample_mu", "y_sample_sigma"]
+        
+        if options["dataset"] in ["toy_lgssm","toy_lgssm_5_pre","toy_lgssm_2dy_5_pre"]:
+            value_list.append(z)
+            value_name_list.append("z")
+            
+        
+        for v, v_name in zip(value_list,value_name_list):
+            if options['dataset'] == 'f16gvt':
+                v=v.transpose(0,2,1)
+                if 'y' in v_name:
+                    v=v.reshape(-1,3)
+                else:
+                    v=v.reshape(-1,2)
+            elif options['dataset'] == 'industrobo':
+                dim=options['dataset_options'].y_dim
+                v=v.transpose(0,2,1)
+                v=v.reshape(-1,dim)
+            else:
+                v=np.transpose(np.squeeze(v))
+            if len(v.shape) == 1:
+                column_name = [v_name+'_0']
+            else:
+                column_name = [v_name+'_'+str(i) for i in range(v.shape[-1])]
+
+            v_df = pd.DataFrame(v, columns=column_name)
+            for column_name in v_df.columns:
+                data_output[column_name] = v_df[column_name]
+                
+        df_output = pd.DataFrame(data_output)
+        df_output.to_csv(output_save_path)
+
+        # %% find how many dimension does y have
+        plot_num = options["dataset_options"].y_dim
+        for i  in range(0,plot_num):
+            dv.plot_time_sequence_uncertainty_simp(df_output["y_test_"+str(i)],
+                                            df_output["y_sample_mu_"+str(i)],
+                                            df_output["y_sample_sigma_"+str(i)],
+                                            "y_"+str(i),
+                                            options,
+                                            batch_show=0,
+                                            x_limit_show=[300, 500],
+                                            path_general=path_general,
+                                            file_name_general=file_name_general)
+    # %% output size of the data (input,output)
     # data_output = {'y_true':y_test.reshape(5000,),'y_true_with_noise': y_test_noisy.reshape(5000,), 'y_predict_mu': y_sample_mu.reshape(5000,),'y_predict_sigma':y_sample_sigma.reshape(5000,),'z_predict_mu': z_sample_mu.reshape(5000,),'z_predict_sigma':z_sample_sigma.reshape(5000,)}
-    print(y_test.shape,y_test_noisy.shape,y_sample_mu.shape,z.shape)
-    df_output = pd.DataFrame(data_output)
+    # print(y_test.shape,y_test_noisy.shape,y_sample_mu.shape)
 
-    df_output.to_csv(output_save_path)
+
+
 
     # %% Collect data
 
@@ -211,6 +237,7 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     test_dict = {'marginal_likeli': marginal_likeli,
                  'vaf': vaf,
                  'rmse': rmse}
+    df = {}
     # dataframe
     df.update(options_dict)
     df.update(test_dict)

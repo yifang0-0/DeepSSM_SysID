@@ -34,7 +34,7 @@ def create_toy_lgssm_datasets(seq_len_train=None, seq_len_val=None, seq_len_test
     A = np.array([[0.7, 0.8], [0, 0.1]])
     B = np.array([[-1], [0.1]])
     # C = np.array([[1], [0]]).transpose()
-    C = np.array([[1], [-1]]).transpose()
+    C = np.array([[1], [0]]).transpose()
     # define noise
     sigma_state = np.sqrt(0.25)
     sigma_out = np.sqrt(1)

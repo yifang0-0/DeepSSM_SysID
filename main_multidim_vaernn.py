@@ -63,9 +63,12 @@ def run_main_single(options, path_general, file_name_general):
         
         # run the task on the selected GPU
         torch.cuda.set_device(idx)
-        device = torch.device('cuda') 
-        gpu_name = torch.cuda.get_device_name(idx)
-        print(f"Using GPU {idx}: {gpu_name}") 
+        if int(gpu_df.iloc[idx]['memory.free'])<2000:
+            device = torch.device('cpu')
+        else:
+            device = torch.device('cuda') 
+            gpu_name = torch.cuda.get_device_name(idx)
+            print(f"Using GPU {idx}: {gpu_name}") 
     else:
         device = torch.device('cpu')
     print('Device: {}'.format(device))
@@ -227,11 +230,11 @@ if __name__ == "__main__":
         
     else:
         options = {
-            'dataset': 'toy_lgssm_5_pre',  # option: 'toy_lgssm_5_pre", "toy_lgssm_2dy_5_pre"
-            'model': 'VAE-RNN', # options: 'VAE-RNN','VAE-RNN-PHY'
+            'dataset': 'toy_lgssm_5_pre',  # options: 'f16gvt', 'narendra_li', 'toy_lgssm', 'wiener_hammerstein', 'industrobo','toy_lgssm_5_pre'
+            'model': 'VAE-RNN-PHYNN', # options: 'VAE-RNN', 'VRNN-Gauss', 'VRNN-Gauss-I', 'VRNN-GMM', 'VRNN-GMM-I', 'STORN'
             'do_train': True,
             'do_test': True,
-            'logdir': 'single_phy_same_train_multi_500',
+            'logdir': 'single_nonlinear',
             'normalize': True,
             'seed': 1234,
             'optim': 'Adam',

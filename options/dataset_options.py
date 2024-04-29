@@ -16,7 +16,7 @@ def get_dataset_options(dataset_name):
     elif dataset_name == 'f16gvt':
         dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: f-16')
         dataset_parser.add_argument('--y_dim', type=int, default=3, help='dimension of y')
-        dataset_parser.add_argument('--u_dim', type=int, default=1, help='dimension of u')
+        dataset_parser.add_argument('--u_dim', type=int, default=2, help='dimension of u')
         dataset_parser.add_argument('--seq_len_train', type=int, default=2048, help='training sequence length')
         dataset_parser.add_argument('--seq_len_test', type=int, default=2048, help='test sequence length')
         dataset_parser.add_argument('--seq_len_val', type=int, default=2048, help='validation sequence length')
@@ -47,6 +47,17 @@ def get_dataset_options(dataset_name):
         dataset_parser.add_argument('--seq_len_train', type=int, default=2048, help='training sequence length')
         dataset_parser.add_argument('--seq_len_test', type=int, default=None, help='test sequence length')
         dataset_parser.add_argument('--seq_len_val', type=int, default=2048, help='validation sequence length')
+        dataset_options = dataset_parser.parse_args()
+        
+    elif dataset_name == 'f16gvt':
+        dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: f-16')
+        dataset_parser.add_argument('--y_dim', type=int, default=3, help='dimension of y')
+        dataset_parser.add_argument('--u_dim', type=int, default=2, help='dimension of u')
+        dataset_parser.add_argument('--input_lev', type=int, default=3, help='input activation level')
+        dataset_parser.add_argument('--input_type', type=str, default="SineSw", help='input activation level')
+        dataset_parser.add_argument('--seq_len_train', type=int, default=128, help='training sequence length')
+        dataset_parser.add_argument('--seq_len_test', type=int, default=128, help='test sequence length')
+        dataset_parser.add_argument('--seq_len_val', type=int, default=128, help='validation sequence length')
         dataset_options = dataset_parser.parse_args()
 
     return dataset_options

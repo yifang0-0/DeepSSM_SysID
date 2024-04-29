@@ -36,7 +36,7 @@ def create_narendra_li_datasets(seq_len_train=None, seq_len_val=None, seq_len_te
     sigma_out = np.sqrt(0.1)
 
     # length of all data sets
-    if bool(kwargs):
+    if bool("k_max_train" in kwargs):
         k_max_train = kwargs['k_max_train']
         k_max_val = kwargs['k_max_val']
         k_max_test = kwargs['k_max_test']

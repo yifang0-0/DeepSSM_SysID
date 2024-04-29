@@ -30,7 +30,7 @@ def run_toy_lgssm_sim(u, A, B, C, sigma_state, sigma_out):
 
 
 def create_toy_lgssm_5_datasets(seq_len_train=None, seq_len_val=None, seq_len_test=None, **kwargs):
-
+    print("kwargs:", kwargs)
     # length of all data sets
     if bool(kwargs) and ("k_max_train" in kwargs):
         k_max_train = kwargs['k_max_train']
@@ -38,8 +38,8 @@ def create_toy_lgssm_5_datasets(seq_len_train=None, seq_len_val=None, seq_len_te
         k_max_test = kwargs['k_max_test']
     else:
         # Default option
-        k_max_train = 1000
-        k_max_val = 1000
+        k_max_train = 2000
+        k_max_val = 2000
         k_max_test = 5000
     
     print("k_max_train: ", k_max_train, "\nk_max_val: ", k_max_val, "\nk_max_test: ", k_max_test)

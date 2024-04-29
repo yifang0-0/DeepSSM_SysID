@@ -5,8 +5,8 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "justMyCode": true,
-            "args": ["--model", "VRNN-Gauss-I","--known_parameter","B"]
+            "justMyCode": True,
+            "args": ["--h_dim 70"]
         }
     ]
 }

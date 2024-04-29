@@ -25,15 +25,21 @@ class IODataset(Dataset):
         data length, the data will be further divided in batches. If None,
         put the entire dataset on a single batch.
     """
-    def __init__(self, u, y, seq_len=None):
+    def __init__(self, u, y, seq_len=None, stride=None):
         if seq_len is None:
             seq_len = u.shape[0]
-        self.u = IODataset._batchify(u.astype(np.float32), seq_len)
-        self.y = IODataset._batchify(y.astype(np.float32), seq_len)
+        if stride is None:
+            self.u = IODataset._batchify(u.astype(np.float32), seq_len)
+            self.y = IODataset._batchify(y.astype(np.float32), seq_len)
+        else:
+            print("sliding window")
+            self.u = IODataset._batchify_window(u.astype(np.float32), seq_len, stride)
+            self.y = IODataset._batchify_window(y.astype(np.float32), seq_len, stride)
         self.ntotbatch = self.u.shape[0]
         self.seq_len = self.u.shape[2]
         self.nu = 1 if u.ndim == 1 else u.shape[1]
         self.ny = 1 if y.ndim == 1 else y.shape[1]
+        print("nbatch: ", self.ntotbatch)
 
     def __len__(self):
         return self.ntotbatch
@@ -60,3 +66,15 @@ class IODataset(Dataset):
         # ## arg = np.zeros([1, 2], dtype=np.float32)
 
         return x
+
+    def _batchify_window(x,seq_len, stride):
+        if x.shape[0]<seq_len:
+            nbatch = x.shape[0] // seq_len
+            x = x[:nbatch * seq_len]
+            x = x.reshape((seq_len, nbatch, -1), order='F').transpose(1, 2, 0)
+            return x
+        else:
+            nbatch = (x.shape[0]-seq_len)//stride + 1
+            x_windows = np.array([x[i*stride:i*stride+seq_len] for i in range(nbatch)])
+            x_windows = x_windows.transpose(0, 2, 1)
+            return x_windows

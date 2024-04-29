@@ -55,3 +55,20 @@ The sequence length is defined in the file [/options/dataset_options.py](https:/
  ```python
  python main_50.py  --model VAE-RNN-Gauss --known_parameter None --train_rounds 16 --start_from 15 --logdir "multi_correct_para"   --do_test "True"  --h_dim 50 --z_dim 5
  ```
+
+ ## ver 2.0
+ - aim: serve for system which has known and unknown part
+ - file to rewrite:
+   - main training: start the training task, reading the parameters, h_dim from 0-200 (?) set the training series
+   - dataset generating/reading: 
+      - for toy-dataset, the previous dataset can be used (five models tested on the same testing set)
+      - for other dataset...
+    - use sliding window (but how..., how to make sure the estimation is continuous?)
+   - options module:
+      - sequence length
+    - log:
+      - decide what need to be saved, what info in logfile
+    - maybe add a system 
+    
+    Network structure:
+    

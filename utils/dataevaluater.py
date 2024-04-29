@@ -57,6 +57,27 @@ def compute_rmse(y, yhat, doprint=False):
 
     return rmse
 
+def compute_nrmse(y, yhat, doprint=False):
+    # get sizes from data
+    num_outputs = y.shape[1]
+
+    # reshape to ydim x -1
+    y = y.transpose(1, 0, 2)
+    y = y.reshape(num_outputs, -1)
+    yhat = yhat.transpose(1, 0, 2)
+    yhat = yhat.reshape(num_outputs, -1)
+
+    nrmse = np.zeros([num_outputs])
+    for i in range(num_outputs):
+        nrmse[i] = np.sqrt(((yhat[i, :] - y[i, :]) ** 2).mean())/(np.std(y[i, :]))
+
+    # print output
+    if doprint:
+        for i in range(num_outputs):
+            print('NRMSE y{} = {:.3f}'.format(i + 1, nrmse[i]))
+
+    return nrmse
+
 
 # computes the marginal likelihood of all outputs
 def compute_marginalLikelihood(y, yhat_mu, yhat_sigma, doprint=False):
