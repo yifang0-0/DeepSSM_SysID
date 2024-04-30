@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from . import STORN, VAE_RNN, VRNN_Gauss, VRNN_Gauss_I, VRNN_GMM, VRNN_GMM_I, STORN_PHY, VAE_RNN_PHY, VRNN_PHY, VAE_RNN_PHYNN,AE_RNN
-
+from torchsummary import summary
 
 class DynamicModel(nn.Module):
     def __init__(self, model, num_inputs, num_outputs, options, normalizer_input=None, normalizer_output=None,
@@ -48,6 +48,8 @@ class DynamicModel(nn.Module):
             self.m = AE_RNN(model_options, options['device'])
         else:
             raise Exception("Unimplemented model")
+        summary(self.m.to(options["device"]), input_size = [(model_options.u_dim,1),(model_options.y_dim,1)])
+
 
     @property
     def num_model_inputs(self):

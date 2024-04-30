@@ -89,7 +89,15 @@ def compute_marginalLikelihood(y, yhat_mu, yhat_sigma, doprint=False):
     # number of batches
     num_batches = y.shape[0]
     num_points = np.prod(y.shape)
+    
+    has_zero = (yhat_sigma == 0).any()
 
+    if has_zero:
+        print("The tensor contains at least one zero value.")
+        return 0
+    else:
+        print("The tensor does not contain any zero values.")
+        
     # get predictive distribution
     pred_dist = tdist.Normal(yhat_mu, yhat_sigma)
 

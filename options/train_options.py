@@ -11,7 +11,7 @@ def get_train_options(dataset_name):
     train_parser.add_argument('--clip', type=int, default=10, help='clipping of gradients')
     train_parser.add_argument('--lr_scheduler_nstart', type=int, default=10, help='learning rate scheduler start epoch')
     train_parser.add_argument('--print_every', type=int, default=1, help='output print of training')
-    train_parser.add_argument('--test_every', type=int, default=2, help='test during training after every n epoch')
+    train_parser.add_argument('--test_every', type=int, default=5, help='test during training after every n epoch')
     
     if dataset_name == 'narendra_li':
         train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')

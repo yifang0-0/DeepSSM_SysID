@@ -1,5 +1,6 @@
 from .model_storn import STORN
 from .model_vae_rnn import VAE_RNN
+from .model_ae_rnn import AE_RNN
 from .model_storn_phy import STORN_PHY
 from .model_vae_rnn_phy import VAE_RNN_PHY
 from .model_vae_rnn_phynn import VAE_RNN_PHYNN

@@ -23,7 +23,7 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
                 total_batches += u.size()[0]
                 total_points += np.prod(u.shape)
                 total_vloss += vloss_.item()
-
+        
         return total_vloss / total_points  # total_batches
 
     def train(epoch):
@@ -33,34 +33,44 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
         total_loss = 0
         total_batches = 0
         total_points = 0
-
+        total_params=0
+        
         for i, (u, y) in enumerate(loader_train):
             u = u.to(options['device'])
             y = y.to(options['device'])
-            
-
             # set the optimizer
             modelstate.optimizer.zero_grad()
             # forward pass over model
             loss_ = modelstate.model(u, y)
             # NN optimization
             loss_.backward()
+            
+            # for name, param in modelstate.model.named_parameters():
+            #     if param.grad is not None:
+            #         print(f'Parameter: {name}, Gradient Norm: {param.grad}')
+            #     else:
+            #         print(f'Parameter: {name}, Gradient: None')
             # apply gradient clipping in case of the gradient vanishing / explosion happends
-            nn.utils.clip_grad_norm_(modelstate.model.parameters(), max_norm=1.0)
+            # nn.utils.clip_grad_norm_(modelstate.model.parameters(), max_norm=100)
             modelstate.optimizer.step()
 
             total_batches += u.size()[0]
             total_points += np.prod(u.shape)
             total_loss += loss_.item()
+            # print("print(loss_)=", loss_)
+            # print("total_batches", total_batches)
+            # print("u.size()[0]",u.size()[0])
+            # print("total_loss", total_loss)
 
+            loss=total_loss / total_points  # total_batches
+            
             # output to console
             if i % train_options.print_every == 0:
                 print(
                     'Train Epoch: [{:5d}/{:5d}], Batch [{:6d}/{:6d} ({:3.0f}%)]\tLearning rate: {:.2e}\tLoss: {:.3f}'.format(
                         epoch, train_options.n_epochs, (i + 1), len(loader_train),
-                        100. * (i + 1) / len(loader_train), lr, total_loss / total_points))  # total_batches
-
-        return total_loss / total_points
+                        100. * (i + 1) / len(loader_train), lr, loss))  # total_batches
+        return loss
 
     try:
         model_options = options['model_options']
