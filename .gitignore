@@ -5,6 +5,7 @@ __pycache__/
 # logging
 log/
 log_Server/
+log_before_16april_1/
 # data which are too big or not used
 data/cascaded_tank.py
 data/CascadedTanksFiles/

@@ -235,6 +235,14 @@ nohup python main_single.py --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --datas
 nohup python main_single.py --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtallknow'  --mpnt_wt=0.1 --A_prt=2 --do_test --do_train &
 nohup python main_single.py --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtallknow'  --mpnt_wt=0 --A_prt=2 --do_test --do_train &
 
+nohup python main_single.py --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prta0'  --mpnt_wt=5 --B_prt=1 --do_test --do_train &
+nohup python main_single.py --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prta0'  --mpnt_wt=2 --B_prt=1 --do_test --do_train &
+nohup python main_single.py --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prta0'  --mpnt_wt=1 --B_prt=1 --do_test --do_train &
+nohup python main_single.py --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prta0'  --mpnt_wt=0.5 --B_prt=1 --do_test --do_train &
+nohup python main_single.py --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prta0'  --mpnt_wt=0.1 --B_prt=1 --do_test --do_train &
+nohup python main_single.py --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prta0'  --mpnt_wt=0 --B_prt=1 --do_test --do_train &
+
+
 nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtaexist'  --mpnt_wt=5 --A_prt=1 --do_test --do_train &
 nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtaexist'  --mpnt_wt=2 --A_prt=1 --do_test --do_train &
 nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtaexist'  --mpnt_wt=1 --A_prt=1 --do_test --do_train &
@@ -273,9 +281,42 @@ nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=20 --z
 nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtallknow'  --mpnt_wt=0.1 --A_prt=2 --do_test --do_train &
 nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtallknow'  --mpnt_wt=0 --A_prt=2 --do_test --do_train &
 
-nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtaexist'  --mpnt_wt=5  --do_test --do_train &
-nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtaexist'  --mpnt_wt=2  --do_test --do_train &
-nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtaexist'  --mpnt_wt=1  --do_test --do_train &
-nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtaexist'  --mpnt_wt=0.5  --do_test --do_train &
-nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtaexist'  --mpnt_wt=0.1  --do_test --do_train &
-nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtaexist'  --mpnt_wt=0  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='parta0b0'  --mpnt_wt=5  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='parta0b0'  --mpnt_wt=2  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='parta0b0'  --mpnt_wt=1  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='parta0b0'  --mpnt_wt=0.5  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='parta0b0'  --mpnt_wt=0.1  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='parta0b0'  --mpnt_wt=0  --do_test --do_train &
+
+
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=200  --A_prt=2 --B_prt=1 --do_test --do_train &
+
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=200  --A_prt=1 --B_prt=1 --do_test --do_train &
+
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=200  --A_prt=0 --B_prt=1 --do_test --do_train &
+
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=200  --A_prt=0 --B_prt=0 --do_test --do_train &
+
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtallknow'  --mpnt_wt=1000 --A_prt=2 --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=60 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtallknow'  --mpnt_wt=1000 --A_prt=2 --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=40 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtallknow'  --mpnt_wt=1000 --A_prt=2 --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='VAE-RNN-PHYNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='prtallknow'  --mpnt_wt=1000 --A_prt=2 --do_test --do_train &
+
+
+# the rnn-phy with different dim
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=15  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=10  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=5  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=2  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=1  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=0.5  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=0.2  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=0.1  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=0  --do_test --do_train &
+
+# try all hard constraints
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=1000  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=40 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=1000  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=60 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=1000  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=80 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=1000  --do_test --do_train &
+nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=100 --z_dim=2 --dataset='toy_lgssm_5_pre' --logdir='test'  --mpnt_wt=1000  --do_test --do_train &

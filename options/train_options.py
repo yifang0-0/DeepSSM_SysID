@@ -101,8 +101,8 @@ def get_main_options():
     model_parser.add_argument('--savelog', metavar = '', type=bool, default=True)
     model_parser.add_argument('--saveoutput', metavar = '', type=bool, default=True)
     model_parser.add_argument('--known_parameter', metavar = '', type=str, default='None')
-    # model_parser.add_argument('--train_rounds', metavar = '', type=int, default=50)
-    # model_parser.add_argument('--start_from', metavar = '', type=int, default=0)
+    model_parser.add_argument('--train_rounds', metavar = '', type=int, default=1)
+    model_parser.add_argument('--start_from', metavar = '', type=int, default=0)
     
     model_options, unknown = model_parser.parse_known_args()
     print(model_options)
@@ -308,8 +308,7 @@ def get_model_options(model_type, dataset_name, dataset_options):
     if model_type == 'VRNN-GMM-I' or model_type == 'VRNN-GMM':
         model_parser.add_argument('--n_mixtures', type=int, default=5, help='number Gaussian output mixtures')
 
-    if 'PHY' in model_type:
-        model_parser.add_argument('--mpnt_wt', type=float, default=0, help='how heavy is the measurement matrix')
+    model_parser.add_argument('--mpnt_wt', type=float, default=0, help='how heavy is the measurement matrix')
 
     model_options, unkown = model_parser.parse_known_args()
 

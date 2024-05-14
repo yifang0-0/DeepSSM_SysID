@@ -112,93 +112,133 @@ def run_main_single(options, path_general, file_name_general):
     # set logger
     set_redirects(path, file_name_general)
 
-    # Specifying datasets
-    loaders = loader.load_dataset(dataset=options["dataset"],
-                                  dataset_options=options["dataset_options"],
-                                  train_batch_size=options["train_options"].batch_size,
-                                  test_batch_size=options["test_options"].batch_size, 
-                                  known_parameter=options["known_parameter"],
-                                  ith_round = 0)
 
-    # Compute normalizers
-    if options["normalize"]:
-        normalizer_input, normalizer_output = compute_normalizer(loaders['train'])
-    else:
-        normalizer_input = normalizer_output = None
 
-    if options['known_parameter'] == 'B':
-        options['model_options'].u_dim = 2
+    # if options['known_parameter'] == 'B':
+    #     options['model_options'].u_dim = 2
 
         
-    # Define model
-    modelstate = ModelState(seed=options["seed"],
-                            nu=loaders["train"].nu, ny=loaders["train"].ny,
-                            model=options["model"],
-                            options=options,
-                            normalizer_input=normalizer_input,
-                            normalizer_output=normalizer_output)
-    modelstate.model.to(options['device'])
+
 
     # save the options
     save_options(options, path_general, 'options.txt')
 
-    # correct input size
+    # initialize dataset
+    train_rounds = options["train_rounds"]
+    start_from_round = options["start_from"]
+    # print number of evaluations
+    print('Total number of data point sets: {}'.format(train_rounds))
 
-        
+    # allocation
+    all_vaf = torch.zeros([train_rounds])
+    all_rmse = torch.zeros([train_rounds])
+    all_likelihood = torch.zeros([train_rounds])
+    all_df = {}
 
     # initialize the dataframe
     df = {}
-    
-    if options['do_train']:
-        # train the model
-        df = training.run_train(modelstate=modelstate,
-                                loader_train=loaders['train'],
-                                loader_valid=loaders['valid'],
+    for i in range(start_from_round, train_rounds):
+        # print which training iteration this is
+        print(' {}/{} round starts'.format(i+1,train_rounds))
+            # Specifying datasets
+        loaders = loader.load_dataset(dataset=options["dataset"],
+                                  dataset_options=options["dataset_options"],
+                                  train_batch_size=options["train_options"].batch_size,
+                                  test_batch_size=options["test_options"].batch_size, 
+                                  known_parameter=options["known_parameter"],
+                                  ith_round = i)
+        
+        # Compute normalizers
+        if options["normalize"]:
+            normalizer_input, normalizer_output = compute_normalizer(loaders['train'])
+        else:
+            normalizer_input = normalizer_output = None
+        
+        # Define model
+        modelstate = ModelState(seed=options["seed"],
+                                nu=loaders["train"].nu, ny=loaders["train"].ny,
+                                model=options["model"],
                                 options=options,
-                                dataframe=df,
-                                path_general=path_general,
-                                file_name_general=file_name_general)
-        # df = pd.DataFrame(df)
+                                normalizer_input=normalizer_input,
+                                normalizer_output=normalizer_output)
+        modelstate.model.to(options['device'])
+        if options['do_train']:
+            # train the model
+            df = training.run_train(modelstate=modelstate,
+                                    loader_train=loaders['train'],
+                                    loader_valid=loaders['valid'],
+                                    options=options,
+                                    dataframe=df,
+                                    path_general=path_general,
+                                    file_name_general=file_name_general+"_No"+str(i))
+            # df = pd.DataFrame(df)
         
-    if options['do_test']:
-        # # test the model
-        # df = testing.run_test(options, loaders, df, path_general, file_name_general)
-        # df = pd.DataFrame(df)
-        
-        
-        # test the model for 10 times
-        # make sure df is in dataframe format
-        df = pd.DataFrame({})
-        # for i in range(10):
-        df_single = {}
-        # test the model
-        df_single = testing.run_test(options, loaders, df, path_general, file_name_general)
-        # make df_single a dataframe
-        df_single = pd.DataFrame(df_single)
-        df = pd.concat([df,df_single])
+        if options['do_test']:
+            # # test the model
+
+            # make sure df is in dataframe format
+            df = pd.DataFrame({})
+            # for i in range(10):
+            df_single = {}
+            # test the model
+            df_single = testing.run_test(options, loaders, df, path_general, file_name_general+"_No"+str(i))
+            # make df_single a dataframe
+            df_single = pd.DataFrame(df_single)
+            df = pd.concat([df,df_single])
+
+
+
+        file_name = file_name_general + '_No{}.csv'.format(i)
+        df.to_csv(path + file_name,index=False)
             
+        # store values
+        all_df[i] = df
+
+        # save performance values
+        # print(df['vaf'],df['vaf'][0],type(df['rmse']),type(df['vaf']))
+        all_vaf[i] = df['vaf'][0]
+        all_rmse[i] = df['rmse'][0]
+        all_likelihood[i] = df['marginal_likeli'].item() 
         
     # %% save data
-    # get saving path
-    path = path_general + 'data/'
-    # check if path exists and create otherwise
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    # filename
-    file_name = file_name_general + '.csv'
-    
-    # %% apend on the old one check if there's old log
-    # if os.path.exists(path + file_name):
-    #     # read old data
-    #     df_old = pd.read_csv(path + file_name,index_col=None)
-    #     #append new to the old file
-    #     df = pd.concat([df_old,df])
-    
-    
-    # save data
+        # save data
     if options['savelog']:
-        df.to_csv(path + file_name,index=False)
+        # df.to_csv(path + file_name,index=False)
+        # # get saving path
+        # path = path_general + 'data/'
+        # check if path exists and create otherwise
+        if not os.path.exists(path):
+            os.makedirs(path)
+        # to pandas
+        all_df_list = []
+        for _,i_df in all_df.items():
+            all_df_list.append(i_df)
+        all_df = pd.concat(all_df_list)
+            
+        print(all_df)
+
+
+        file_name = file_name_general + '_multitrain.csv'
+        
+        # check if path exists and create otherwise
+        if not os.path.exists(path):
+            os.makedirs(path)
+        # # check if there's old log
+        if os.path.exists(path + file_name):
+            # read old data
+            df_old = pd.read_csv(path + file_name,index_col=None)
+            #append new to the old file
+            df = df_old.append(df)
+        # save data
+        all_df.to_csv(path_general + file_name)
+        # save performance values
+        torch.save(all_vaf, path_general + 'data/' + 'all_vaf.pt')
+        torch.save(all_rmse, path_general + 'data/' + 'all_rmse.pt')
+        torch.save(all_likelihood, path_general + 'data/' + 'all_likelihood.pt')
+        
+        
+        
+
 
 
     # time output
@@ -234,6 +274,9 @@ if __name__ == "__main__":
         options['savelog'] = main_params_parser.savelog
         options['saveoutput'] = main_params_parser.saveoutput
         options['known_parameter'] = main_params_parser.known_parameter
+        options['train_rounds'] = main_params_parser.train_rounds
+        options['start_from'] = main_params_parser.start_from
+
 
         # print("Encountered errors loading the main options of the training/testing task")
         

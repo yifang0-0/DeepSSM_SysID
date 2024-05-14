@@ -39,12 +39,14 @@ class VAE_RNN(nn.Module):
             nn.Linear(self.h_dim + self.h_dim, self.h_dim),
             nn.ReLU(),
             nn.Linear(self.h_dim, self.h_dim),
-            nn.ReLU(),)
+            nn.ReLU(),
+            )
         self.enc_mean = nn.Sequential(
             nn.Linear(self.h_dim, self.z_dim))
         self.enc_logvar = nn.Sequential(
             nn.Linear(self.h_dim, self.z_dim),
-            nn.ReLU(),)
+            # nn.ReLU(),
+            )
 
         # prior function (phi_prior) -> Prior
         self.prior = nn.Sequential(
@@ -56,7 +58,8 @@ class VAE_RNN(nn.Module):
             nn.Linear(self.h_dim, self.z_dim))
         self.prior_logvar = nn.Sequential(
             nn.Linear(self.h_dim, self.z_dim),
-            nn.ReLU())
+            # nn.ReLU()
+            )
 
         # decoder function (phi_dec) -> Generation
         self.dec = nn.Sequential(
@@ -68,7 +71,8 @@ class VAE_RNN(nn.Module):
             nn.Linear(self.h_dim, self.y_dim),)
         self.dec_logvar = nn.Sequential(
             nn.Linear(self.h_dim, self.y_dim),
-            nn.ReLU())
+            # nn.ReLU()
+            )
 
         # recurrence function (f_theta) -> Recurrence
         self.rnn = nn.GRU(self.h_dim, self.h_dim, self.n_layers, bias)
