@@ -76,7 +76,7 @@ class VAE_RNN_PHYNN(nn.Module):
             nn.Linear(self.h_dim, self.z_dim))
         self.enc_logvar = nn.Sequential(
             nn.Linear(self.h_dim, self.z_dim),
-            nn.ReLU(),
+            # nn.ReLU(),
             )
 
         # prior function (phi_prior) -> Prior
@@ -89,7 +89,7 @@ class VAE_RNN_PHYNN(nn.Module):
             nn.Linear(self.h_dim, self.z_dim))
         self.prior_logvar = nn.Sequential(
             nn.Linear(self.h_dim, self.z_dim),
-            nn.ReLU()
+            # nn.ReLU()
             )
 
         # decoder function (phi_dec) -> Generation
@@ -102,7 +102,8 @@ class VAE_RNN_PHYNN(nn.Module):
             nn.Linear(self.h_dim, self.y_dim),)
         self.dec_logvar = nn.Sequential(
             nn.Linear(self.h_dim, self.y_dim),
-            nn.ReLU())
+            # nn.ReLU()
+            )
 
         
         # recurrence function (f_theta) -> Recurrence
@@ -229,15 +230,14 @@ class VAE_RNN_PHYNN(nn.Module):
             # let's say we use hard constraints here where we see no decoder needs to be trained
             if self.mpnt_wt>100:
                 param_C =  torch.tensor(self.param['C'], dtype=torch.float32,device=self.device)
-                dec_t = torch.matmul(param_C,z_t.t())
+                
+                # dec_t = torch.matmul(param_C,z_t.t()) # this is the one with larger loss
+                dec_t = torch.matmul(z_t,param_C.t()) # smaller oss (from vae-rnn-phy)
                 # print("z_t,dec_t",z_t,dec_t)
                 # dec_t = param_C*z_t 
                 dec_mean_t = dec_t
                 dec_var_t = torch.pow(torch.tensor(self.param['sigma_out'], dtype=torch.float32,device=self.device),2) 
                 z_var_t = torch.matmul(param_C*enc_logvar_t.exp(),param_C.T) 
-                # print("z_var_t,dec_var_t,z_var_t,shape,dec_var_t.shape,dec_var_t+z_var_t",z_var_t,dec_var_t+z_var_t,dec_var_t,z_var_t.shape,dec_var_t.shape,)
-                        
-                # temp = tdist.Normal(dec_mean_t, dec_logvar_t.exp().sqrt()+z_var_t)
                 pred_dist = tdist.Normal(dec_mean_t, (dec_var_t+z_var_t).sqrt())
 
 
@@ -245,7 +245,9 @@ class VAE_RNN_PHYNN(nn.Module):
                 KLD = self.kld_gauss(enc_mean_t, enc_logvar_t, prior_mean_t, prior_logvar_t)
                 loss_pred = torch.sum(pred_dist.log_prob(y[:, :, t]))
                 loss += - loss_pred + KLD
-                        
+                # print(dec_mean_t,(dec_var_t+z_var_t).sqrt())
+                # print("KLD,loss_pred,z_var_t",KLD,loss_pred,z_var_t)
+                # print(pred_dist)
             elif self.mpnt_wt>=10:
      
                 # decoder: z_t -> y_t
@@ -329,21 +331,22 @@ class VAE_RNN_PHYNN(nn.Module):
                         # let's say we use hard constraints here where we see no decoder needs to be trained
             if self.mpnt_wt>100:
                 param_C =  torch.tensor(self.param['C'], dtype=torch.float32,device=self.device)
-                dec_t = torch.matmul(param_C,z_t.t())
-                # print("dec_t.shape,param_C.shape,z_t.shape \n",dec_t.shape,param_C.shape,z_t.shape)
+                dec_t = torch.matmul(z_t,param_C.t())
+
                 dec_mean_t = dec_t
                 dec_var_t = torch.pow(torch.tensor(self.param['sigma_out'], dtype=torch.float32,device=self.device),2) 
-                # torch.matmul(C,C.T*(z_logvar_t.exp()))
+
                 z_var_t = torch.matmul(param_C*prior_logvar_t.exp(),param_C.T)
-                # print("z_var_t,dec_var_t,z_var_t,shape,dec_var_t.shape",z_var_t,dec_var_t,z_var_t.shape,dec_var_t.shape,)
-                # temp = tdist.Normal(dec_mean_t, dec_logvar_t.exp().sqrt()+z_var_t)
                 temp = tdist.Normal(dec_mean_t, (dec_var_t+z_var_t).sqrt())
                 sample[:, :, t] = tdist.Normal.rsample(temp)
                 
                 # store mean and std
                 sample_mu[:, :, t] = dec_mean_t
                 sample_sigma[:, :, t] = (dec_var_t+z_var_t).sqrt()
-                
+                                # print("z_var_t,dec_var_t,z_var_t,shape,dec_var_t.shape",z_var_t,dec_var_t,z_var_t.shape,dec_var_t.shape,)
+                # temp = tdist.Normal(dec_mean_t, dec_logvar_t.exp().sqrt()+z_var_t)
+                                # torch.matmul(C,C.T*(z_logvar_t.exp()))
+                                                # print("dec_t.shape,param_C.shape,z_t.shape \n",dec_t.shape,param_C.shape,z_t.shape)
             elif self.mpnt_wt>=10:
                 phi_z_t = self.phi_z(z_t)
                 # decoder: z_t -> y_t

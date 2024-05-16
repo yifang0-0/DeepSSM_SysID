@@ -113,7 +113,7 @@ class AE_RNN(nn.Module):
 
            
             dynn_phi = self.dynn(torch.cat([phi_u_t, h[-1]], 1))
-            x_mean = self.x_mean(dynn_phi)
+            x_mean = self.x_mean(2)
             x_logvar = self.x_logvar(dynn_phi)
             
             # recurrence: u_t+1 -> h_t+1

@@ -1,0 +1,139 @@
+{
+    "os": "Linux-5.4.0-163-generic-x86_64-with-glibc2.31",
+    "python": "3.11.3",
+    "heartbeatAt": "2024-05-15T14:15:22.636201",
+    "startedAt": "2024-05-15T14:15:21.902220",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "<python with no main file>",
+    "codePathLocal": null,
+    "git": {
+        "remote": "git@github.com:yifang0-0/DeepSSM_SysID.git",
+        "commit": "4ecb8ef6de7f3dd6ecb31e0298abec6baa185eb3"
+    },
+    "email": "1999zoeli@gmail.com",
+    "root": "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID",
+    "host": "dcscgpuserver1",
+    "username": "ruiyuanli",
+    "executable": "/home/ruiyuanli/miniconda3/envs/deepsys/bin/python",
+    "cpu_count": 8,
+    "cpu_count_logical": 16,
+    "cpu_freq": {
+        "current": 3.198375,
+        "min": 1500.0,
+        "max": 3100.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 3.195,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.195,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.2,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.2,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.199,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.199,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.2,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.199,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.195,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.195,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.2,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.2,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.199,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.199,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.2,
+            "min": 1500.0,
+            "max": 3100.0
+        },
+        {
+            "current": 3.199,
+            "min": 1500.0,
+            "max": 3100.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 217.9661979675293,
+            "used": 189.02754592895508
+        }
+    },
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_count": 4,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 3090",
+            "memory_total": 25769803776
+        },
+        {
+            "name": "NVIDIA GeForce RTX 3090",
+            "memory_total": 25769803776
+        },
+        {
+            "name": "NVIDIA GeForce RTX 3090",
+            "memory_total": 25769803776
+        },
+        {
+            "name": "NVIDIA GeForce RTX 3090",
+            "memory_total": 25769803776
+        }
+    ],
+    "memory": {
+        "total": 251.63995361328125
+    }
+}

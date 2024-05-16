@@ -138,6 +138,10 @@ def run_main_single(options, path_general, file_name_general):
     # initialize the dataframe
     df = {}
     for i in range(start_from_round, train_rounds):
+        if train_rounds>1:
+            file_name_general_i=file_name_general+"_No"+str(i)
+        else:
+            file_name_general_i=file_name_general
         # print which training iteration this is
         print(' {}/{} round starts'.format(i+1,train_rounds))
             # Specifying datasets
@@ -170,7 +174,7 @@ def run_main_single(options, path_general, file_name_general):
                                     options=options,
                                     dataframe=df,
                                     path_general=path_general,
-                                    file_name_general=file_name_general+"_No"+str(i))
+                                    file_name_general=file_name_general_i)
             # df = pd.DataFrame(df)
         
         if options['do_test']:
@@ -181,28 +185,26 @@ def run_main_single(options, path_general, file_name_general):
             # for i in range(10):
             df_single = {}
             # test the model
-            df_single = testing.run_test(options, loaders, df, path_general, file_name_general+"_No"+str(i))
+            df_single = testing.run_test(options, loaders, df, path_general, file_name_general_i)
             # make df_single a dataframe
             df_single = pd.DataFrame(df_single)
             df = pd.concat([df,df_single])
 
+            if options['savelog']:
+                df.to_csv(path + file_name_general_i,index=False)
 
+            # store values
+            all_df[i] = df
 
-        file_name = file_name_general + '_No{}.csv'.format(i)
-        df.to_csv(path + file_name,index=False)
-            
-        # store values
-        all_df[i] = df
-
-        # save performance values
-        # print(df['vaf'],df['vaf'][0],type(df['rmse']),type(df['vaf']))
-        all_vaf[i] = df['vaf'][0]
-        all_rmse[i] = df['rmse'][0]
-        all_likelihood[i] = df['marginal_likeli'].item() 
+            # save performance values
+            # print(df['vaf'],df['vaf'][0],type(df['rmse']),type(df['vaf']))
+            all_vaf[i] = df['vaf'][0]
+            all_rmse[i] = df['rmse'][0]
+            all_likelihood[i] = df['marginal_likeli'].item() 
         
     # %% save data
         # save data
-    if options['savelog']:
+    if options['savelog']==True and options['do_test']==True:
         # df.to_csv(path + file_name,index=False)
         # # get saving path
         # path = path_general + 'data/'

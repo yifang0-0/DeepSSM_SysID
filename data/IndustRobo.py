@@ -11,7 +11,7 @@ def create_industrobo_datasets(seq_len_train=None, seq_len_val=None, seq_len_tes
 
     df_industRobo =  loadmat(file_name_train)
 
-    
+    ith_lgssm = kwargs["ith_round"]
 
     # u_train = df_industRobo["u_train"]
     # y_train = df_industRobo["y_train"]
@@ -19,12 +19,12 @@ def create_industrobo_datasets(seq_len_train=None, seq_len_val=None, seq_len_tes
     # y_val   = df_industRobo["y_val"]
     # u_test  = df_industRobo["u_test"]
     # y_test  = df_industRobo["y_test"]
-    u_train = df_industRobo["u_train"][0,:]
-    y_train = df_industRobo["y_train"][0,:]
-    u_val   = df_industRobo["u_val"][0,:]
-    y_val   = df_industRobo["y_val"][0,:]
-    u_test  = df_industRobo["u_test"][0,:]
-    y_test  = df_industRobo["y_test"][0,:]
+    u_train = df_industRobo["u_train"][ith_lgssm-1,:]
+    y_train = df_industRobo["y_train"][ith_lgssm-1,:]
+    u_val   = df_industRobo["u_val"][ith_lgssm-1,:]
+    y_val   = df_industRobo["y_val"][ith_lgssm-1,:]
+    u_test  = df_industRobo["u_test"][ith_lgssm-1,:]
+    y_test  = df_industRobo["y_test"][ith_lgssm-1,:]
     
 
     
