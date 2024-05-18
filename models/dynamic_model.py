@@ -48,7 +48,10 @@ class DynamicModel(nn.Module):
             self.m = AE_RNN(model_options, options['device'],system_options)
         else:
             raise Exception("Unimplemented model")
-        summary(self.m.to(options["device"]), input_size = [(model_options.u_dim,1),(model_options.y_dim,1)])
+        
+        #%% if on cpu, running summary could be problemetic
+        # summary(self.m.to(options["device"]), input_size = [(model_options.u_dim,1),(model_options.y_dim,1)])
+
 
 
     @property

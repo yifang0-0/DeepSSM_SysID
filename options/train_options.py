@@ -239,9 +239,9 @@ def get_dataset_options(dataset_name):
         dataset_parser.add_argument('--input_channel', type=int, default=1, help='train which joint')
         # dataset_parser.add_argument('--input_type', type=str, default="FullMSine", help='input activation level')
         dataset_parser.add_argument('--seq_stride', type=int, default=None, help='window size stride')
-        dataset_parser.add_argument('--seq_len_train', type=int, default=2048, help='training sequence length')
-        dataset_parser.add_argument('--seq_len_test', type=int, default=256, help='test sequence length')
-        dataset_parser.add_argument('--seq_len_val', type=int, default=256, help='validation sequence length')
+        dataset_parser.add_argument('--seq_len_train', type=int, default=256, help='training sequence length')
+        dataset_parser.add_argument('--seq_len_test', type=int, default=64, help='test sequence length')
+        dataset_parser.add_argument('--seq_len_val', type=int, default=64, help='validation sequence length')
         dataset_options, unknown = dataset_parser.parse_known_args()
 
 

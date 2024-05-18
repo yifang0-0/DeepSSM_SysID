@@ -14,7 +14,7 @@ x: the true(KF) state
 
 # %% simplified version of the plot
 def plot_time_sequence_uncertainty_simp(data_y_true, data_y_sample_mu, data_y_sample_std, label_y, options, path_general, file_name_general,
-                                   batch_show, x_limit_show, length = 140, start_index = 300):
+                                   batch_show, x_limit_show, length = 300, start_index = 0):
 
     # storage path
     file_name = file_name_general + '_timeEval_'+label_y
@@ -27,13 +27,15 @@ def plot_time_sequence_uncertainty_simp(data_y_true, data_y_sample_mu, data_y_sa
     std = data_y_sample_std[start_index:start_index+length]
     mu_true = data_y_true[start_index:start_index+length]
     # plot true mean
+    
+    plt.figure(figsize=(12,3))
     plt.plot(mu_true, label=label_y+" True",color='b')
     # plot mean
     plt.plot(mu, label=label_y+" Estimate",color='r')
 
-    # plot 3std around
-    plt.fill_between(x, mu, mu +  3 * std, alpha=0.3, facecolor='r')
-    plt.fill_between(x, mu, mu -  3 * std, alpha=0.3, facecolor='r')
+    # # plot 3std around
+    # plt.fill_between(x, mu, mu +  3 * std, alpha=0.3, facecolor='r')
+    # plt.fill_between(x, mu, mu -  3 * std, alpha=0.3, facecolor='r')
 
 
 

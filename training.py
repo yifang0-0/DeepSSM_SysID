@@ -38,6 +38,7 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
         for i, (u, y) in enumerate(loader_train):
             u = u.to(options['device'])
             y = y.to(options['device'])
+
             # set the optimizer
             modelstate.optimizer.zero_grad()
             # forward pass over model

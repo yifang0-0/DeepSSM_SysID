@@ -65,12 +65,16 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
         # y_sample, y_sample_mu, y_sample_sigma, z_sample_mu, z_sample_sigma = modelstate.model.generate(u_test)
         # y_sample, y_sample_mu, y_sample_sigma= modelstate.model.generate(u_test)
         
-        if  'toy_lgssm' in options['dataset']:
-            ## TODO: original code
-            y_sample, y_sample_mu, y_sample_sigma, z = modelstate.model.generate(u_test)
-            z = z.cpu().detach().numpy()
-        else:
-            y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
+        # %% toy_lgssm and rnn-indusrobo has z returned
+        y_sample, y_sample_mu, y_sample_sigma, z = modelstate.model.generate(u_test)
+        z = z.cpu().detach().numpy()
+        
+        # if  'toy_lgssm' in options['dataset']:
+        #     ## TODO: original code
+        #     y_sample, y_sample_mu, y_sample_sigma, z = modelstate.model.generate(u_test)
+        #     z = z.cpu().detach().numpy()
+        # else:
+        #     y_sample, y_sample_mu, y_sample_sigma = modelstate.model.generate(u_test)
             
         # convert to cpu and to numpy for evaluation
         # samples data
@@ -173,7 +177,7 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
         value_list = [u_test, y_test, y_test_noisy, y_sample_mu, y_sample_sigma]
         value_name_list = ['u_test',"y_test", "y_test_noisy", "y_sample_mu", "y_sample_sigma"]
         
-        if options["dataset"] in ["toy_lgssm","toy_lgssm_5_pre","toy_lgssm_2dy_5_pre"]:
+        if options["dataset"] in ["toy_lgssm","toy_lgssm_5_pre","toy_lgssm_2dy_5_pre","industrobo"]:
             value_list.append(z)
             value_name_list.append("z")
             
@@ -236,7 +240,8 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     # test_dict
     test_dict = {'marginal_likeli': marginal_likeli,
                  'vaf': vaf,
-                 'rmse': rmse}
+                 'rmse': rmse,
+                 'nrmse':nrmse}
     df = {}
     # dataframe
     df.update(options_dict)

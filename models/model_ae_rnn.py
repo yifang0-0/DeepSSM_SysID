@@ -21,8 +21,8 @@ class AE_RNN(nn.Module):
         self.device = device
         self.mpnt_wt = param.mpnt_wt
         self.param = sys_param
-
-        print(self.param['A_prt'], self.param['B_prt'],self.param['C'],self.mpnt_wt)
+        # print("self.device", self.device)
+        # print(self.param['A_prt'], self.param['B_prt'],self.param['C'],self.mpnt_wt)
 
 
         # feature-extracting transformations (phi_y, phi_u and phi_z)
@@ -107,13 +107,13 @@ class AE_RNN(nn.Module):
 
         # for all time steps
         for t in range(seq_len):
+            # print("phi_u.is_cuda()", u[:, :, t].get_device())
 
             # feature extraction: u_t
             phi_u_t = self.phi_u(u[:, :, t])
 
-           
             dynn_phi = self.dynn(torch.cat([phi_u_t, h[-1]], 1))
-            x_mean = self.x_mean(2)
+            x_mean = self.x_mean(dynn_phi)
             x_logvar = self.x_logvar(dynn_phi)
             
             # recurrence: u_t+1 -> h_t+1

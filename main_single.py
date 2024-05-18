@@ -61,7 +61,7 @@ def run_main_single(options, path_general, file_name_general):
         
         # run the task on the selected GPU
         torch.cuda.set_device(idx)
-        if int(gpu_df.iloc[idx]['memory.free'])<2000:
+        if int(gpu_df.iloc[idx]['memory.free'])<1000:
             device = torch.device('cpu')
         else:
             device = torch.device('cuda') 
@@ -168,6 +168,8 @@ def run_main_single(options, path_general, file_name_general):
         modelstate.model.to(options['device'])
         if options['do_train']:
             # train the model
+            # print("options['device']",options['device'])
+            
             df = training.run_train(modelstate=modelstate,
                                     loader_train=loaders['train'],
                                     loader_valid=loaders['valid'],

@@ -13,36 +13,37 @@ def create_industrobo_datasets(seq_len_train=None, seq_len_val=None, seq_len_tes
 
     ith_lgssm = kwargs["ith_round"]
 
-    # u_train = df_industRobo["u_train"]
-    # y_train = df_industRobo["y_train"]
-    # u_val   = df_industRobo["u_val"]
-    # y_val   = df_industRobo["y_val"]
-    # u_test  = df_industRobo["u_test"]
-    # y_test  = df_industRobo["y_test"]
-    u_train = df_industRobo["u_train"][ith_lgssm-1,:]
-    y_train = df_industRobo["y_train"][ith_lgssm-1,:]
-    u_val   = df_industRobo["u_val"][ith_lgssm-1,:]
-    y_val   = df_industRobo["y_val"][ith_lgssm-1,:]
-    u_test  = df_industRobo["u_test"][ith_lgssm-1,:]
-    y_test  = df_industRobo["y_test"][ith_lgssm-1,:]
+    u_train = df_industRobo["u_train"]
+    y_train = df_industRobo["y_train"]
+    u_val   = df_industRobo["u_val"]
+    y_val   = df_industRobo["y_val"]
+    u_test  = df_industRobo["u_test"]
+    y_test  = df_industRobo["y_test"]
+    # u_train = df_industRobo["u_train"][ith_lgssm-1,:]
+    # y_train = df_industRobo["y_train"][ith_lgssm-1,:]
+    # u_val   = df_industRobo["u_val"][ith_lgssm-1,:]
+    # y_val   = df_industRobo["y_val"][ith_lgssm-1,:]
+    # u_test  = df_industRobo["u_test"][ith_lgssm-1,:]
+    # y_test  = df_industRobo["y_test"][ith_lgssm-1,:]
     
 
     
    
     # convert from list to numpy array
-    # u_train = np.asarray(u_train).T[::10]
-    # y_train = np.asarray(y_train).T[::10]
-    # u_val = np.asarray(u_val).T[::10]
-    # y_val = np.asarray(y_val).T[::10]
-    # u_test = np.asarray(u_test).T[::10]
-    # y_test = np.asarray(y_test).T[::10]
     
-    u_train = np.asarray(u_train).T
-    y_train = np.asarray(y_train).T
-    u_val = np.asarray(u_val).T
-    y_val = np.asarray(y_val).T
-    u_test = np.asarray(u_test).T
-    y_test = np.asarray(y_test).T
+    u_train = np.asarray(u_train).T[::10]
+    y_train = np.asarray(y_train).T[::10]
+    u_val = np.asarray(u_val).T[::10]
+    y_val = np.asarray(y_val).T[::10]
+    u_test = np.asarray(u_test).T[::10]
+    y_test = np.asarray(y_test).T[::10]
+    
+    # u_train = np.asarray(u_train).T
+    # y_train = np.asarray(y_train).T
+    # u_val = np.asarray(u_val).T
+    # y_val = np.asarray(y_val).T
+    # u_test = np.asarray(u_test).T
+    # y_test = np.asarray(y_test).T
     
     print("seq_stride: ", seq_stride)
 
