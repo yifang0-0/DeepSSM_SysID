@@ -190,7 +190,15 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
                 else:
                     v=v.reshape(-1,2)
             elif options['dataset'] == 'industrobo':
-                dim=options['dataset_options'].y_dim
+                if 'y' in v_name:
+                    dim=options['dataset_options'].y_dim
+                elif 'u' in v_name:
+                    dim=options['dataset_options'].u_dim
+                elif 'z' in v_name:
+                    dim=options['model_options'].z_dim
+                else:
+                    v=v.reshape(-1,2)
+                print("v_name v.shape",v_name, v.shape)
                 v=v.transpose(0,2,1)
                 v=v.reshape(-1,dim)
             else:

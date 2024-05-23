@@ -39,13 +39,13 @@ class DynamicModel(nn.Module):
         elif model == 'STORN-PHY':
             self.m = STORN_PHY(model_options, options['device'])
         elif model == 'VAE-RNN-PHY':
-            self.m = VAE_RNN_PHY(model_options, options['device'], system_options)
+            self.m = VAE_RNN_PHY(model_options, options['device'], system_options,options['dataset'])
         elif model == 'VAE-RNN-PHYNN':
-            self.m = VAE_RNN_PHYNN(model_options, options['device'], system_options)
+            self.m = VAE_RNN_PHYNN(model_options, options['device'], system_options,options['dataset'])
         elif model == 'VRNN-PHY':
             self.m = VRNN_PHY(model_options, options['device'])
         elif model == 'AE-RNN':
-            self.m = AE_RNN(model_options, options['device'],system_options)
+            self.m = AE_RNN(model_options, options['device'],system_options,options['dataset'])
         else:
             raise Exception("Unimplemented model")
         

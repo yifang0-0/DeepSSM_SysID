@@ -132,6 +132,7 @@ def run_main_single(options, path_general, file_name_general):
     # allocation
     all_vaf = torch.zeros([train_rounds])
     all_rmse = torch.zeros([train_rounds])
+    all_nrmse = torch.zeros([train_rounds])
     all_likelihood = torch.zeros([train_rounds])
     all_df = {}
 
@@ -202,7 +203,8 @@ def run_main_single(options, path_general, file_name_general):
             # print(df['vaf'],df['vaf'][0],type(df['rmse']),type(df['vaf']))
             all_vaf[i] = df['vaf'][0]
             all_rmse[i] = df['rmse'][0]
-            all_likelihood[i] = df['marginal_likeli'].item() 
+            all_nrmse[i] = df['nrmse'][0]
+            # all_likelihood[i] = df['marginal_likeli'].item() 
         
     # %% save data
         # save data
