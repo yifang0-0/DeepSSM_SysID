@@ -3,6 +3,9 @@ import torch.nn as nn
 from torch.nn import functional as F
 import torch.distributions as tdist
 from torchsummary import summary
+
+
+import roboticstoolbox as rtb
 """implementation of the Variational Auto Encoder Recurrent Neural Network (VAE-RNN) from 
 https://backend.orbit.dtu.dk/ws/portalfiles/portal/160548008/phd475_Fraccaro_M.pdf and partly from
 https://arxiv.org/pdf/1710.05741.pdf using unimodal isotropic gaussian distributions for inference, prior, and 
@@ -10,7 +13,7 @@ generating models."""
 
 
 class AE_RNN(nn.Module):
-    def __init__(self, param, device,  sys_param={}, bias=False):
+    def __init__(self, param, device,  sys_param={},  dataset="toy_lgssm", bias=False):
         super(AE_RNN, self).__init__()
 
         self.y_dim = param.y_dim
@@ -21,6 +24,7 @@ class AE_RNN(nn.Module):
         self.device = device
         self.mpnt_wt = param.mpnt_wt
         self.param = sys_param
+        self.dataset = dataset
         # print("self.device", self.device)
         # print(self.param['A_prt'], self.param['B_prt'],self.param['C'],self.mpnt_wt)
 
@@ -46,7 +50,7 @@ class AE_RNN(nn.Module):
         # encoder function (phi_enc) -> Inference
         self.dynn = nn.Sequential(
             nn.Linear(self.h_dim + self.h_dim, self.h_dim),
-            nn.Dropout(),
+            # nn.Dropout(),
             # nn.Tanh(),
             nn.ReLU(),
             nn.Linear(self.h_dim, self.h_dim),
@@ -55,9 +59,7 @@ class AE_RNN(nn.Module):
         
         self.menn = nn.Sequential(
             nn.Linear(self.h_dim, self.h_dim),
-            nn.Dropout(),
-            # nn.ReLU(),
-            # nn.Tanh(),
+            # nn.Dropout(),
             nn.ReLU(),
             nn.Linear(self.h_dim, self.y_dim),
             # nn.ReLU(),
@@ -66,32 +68,38 @@ class AE_RNN(nn.Module):
         # recurrence function (f_theta) -> Recurrence
         self.rnn = nn.GRU(self.h_dim, self.h_dim, self.n_layers, bias)
         
-    def dynamic_phy_linear_z(self, u_tm1, z_tm1):
+    def dynamic_phy(self, u_tm1, z_tm1):
         batch_size = u_tm1.shape[0]
-        A_prt =torch.tensor(self.param['A_prt'], dtype=torch.float32,device=self.device)
-        A_prt = A_prt.expand(batch_size, -1, -1)
+        if "lgssm" in self.dataset:
+            A_prt =torch.tensor(self.param['A_prt'], dtype=torch.float32,device=self.device)
+            A_prt = A_prt.expand(batch_size, -1, -1)
 
-        B_prt =torch.tensor(self.param['B_prt'], dtype=torch.float32,device=self.device)
-        B_prt = B_prt.expand(batch_size, -1, -1)
-        z_phy_t =  torch.matmul(A_prt,z_tm1.unsqueeze(-1)).squeeze(-1)+torch.matmul(B_prt,u_tm1.unsqueeze(-1)).squeeze(-1)
+            B_prt =torch.tensor(self.param['B_prt'], dtype=torch.float32,device=self.device)
+            B_prt = B_prt.expand(batch_size, -1, -1)
+            z_phy_t =  torch.matmul(A_prt,z_tm1.unsqueeze(-1)).squeeze(-1)+torch.matmul(B_prt,u_tm1.unsqueeze(-1)).squeeze(-1)
+        elif self.dataset == "industrobo":
+            # 
+            z_phy_t = 0
         return z_phy_t
     
-    def measure_phy_linear_z(self, z_tm1,u_tm1=0):
-        batch_size = z_tm1.shape[0]
-        C =torch.tensor(self.param['C'], dtype=torch.float32,device=self.device)
-        C = C.expand(batch_size, -1, -1)
+    def dynamic_phy_z(self, z_tm1,u_tm1=0):
+        if "lgssm" in self.dataset:
+            batch_size = z_tm1.shape[0]
+            C =torch.tensor(self.param['C'], dtype=torch.float32,device=self.device)
+            C = C.expand(batch_size, -1, -1)
 
-        z_phy_t =  torch.matmul(C,z_tm1.unsqueeze(-1)).squeeze(-1)
+            z_phy_t =  torch.matmul(C,z_tm1.unsqueeze(-1)).squeeze(-1)
         return z_phy_t
     
-    def measure_phy_linear_y(self, z_mean_t, z_logvar_t):
-        C = torch.tensor( self.param['C'], dtype=torch.float32,device=self.device)
-        sigma = torch.tensor( self.param['sigma_out'], dtype=torch.float32,device=self.device)
-        sigma2 = torch.pow(sigma,2)
-        z_logvar_t = z_logvar_t.unsqueeze(-1)
-        z_var_t = torch.matmul(C*(z_logvar_t.exp()),C.T)
-        measure_mean = torch.matmul(C,z_mean_t.unsqueeze(-1)).squeeze(-1)
-        measure_var = (z_var_t+sigma2).squeeze(-1)                     
+    def measure_phy(self, z_mean_t, z_logvar_t):
+        if "lgssm" in self.dataset:
+            C = torch.tensor( self.param['C'], dtype=torch.float32,device=self.device)
+            sigma = torch.tensor( self.param['sigma_out'], dtype=torch.float32,device=self.device)
+            sigma2 = torch.pow(sigma,2)
+            z_logvar_t = z_logvar_t.unsqueeze(-1)
+            z_var_t = torch.matmul(C*(z_logvar_t.exp()),C.T)
+            measure_mean = torch.matmul(C,z_mean_t.unsqueeze(-1)).squeeze(-1)
+            measure_var = (z_var_t+sigma2).squeeze(-1)                     
         return measure_mean, measure_var
     
 
@@ -142,7 +150,7 @@ class AE_RNN(nn.Module):
             elif self.mpnt_wt>=10:
                 phi_x = self.phi_x(torch.cat([x_mean, x_logvar], 1))
                 y_hat_nn = self.menn(phi_x)
-                y_hat_phy = self.measure_phy_linear_z(x_mean)
+                y_hat_phy = self.dynamic_phy_z(x_mean)
                 y_hat = y_hat_nn+y_hat_phy
                 loss += torch.sum((y_hat-y[:, :, t]) ** 2)
                 
@@ -155,7 +163,7 @@ class AE_RNN(nn.Module):
                 ## add measurement known panalty
                 phi_x = self.phi_x(torch.cat([x_mean, x_logvar], 1))
                 y_hat = self.menn(phi_x)
-                measure_mean_t, measure_var_t = self.measure_phy_linear_y(x_mean, x_logvar )
+                measure_mean_t, measure_var_t = self.measure_phy(x_mean, x_logvar )
                 pred_measurepanalty_dist = tdist.Normal(measure_mean_t, measure_var_t.sqrt())
                 loss_panelty = torch.sum(pred_measurepanalty_dist.log_prob(y[:, :, t]))
                 loss += (torch.sum((y_hat-y[:, :, t]) ** 2) - self.mpnt_wt*loss_panelty)
@@ -209,7 +217,7 @@ class AE_RNN(nn.Module):
                 # physical augmentation CX
                 phi_x = self.phi_x(torch.cat([x[:,:,t], x_logvar], 1))
                 y_hat_nn = self.menn(phi_x)
-                y_hat_phy = self.measure_phy_linear_z(x[:,:,t])
+                y_hat_phy = self.dynamic_phy_z(x[:,:,t])
                 y_hat[:, :, t] = y_hat_nn+y_hat_phy
                 # y_hat_sigma[:, :, t] =  measure_var_t.sqrt()
 
