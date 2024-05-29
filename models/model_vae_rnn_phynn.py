@@ -37,7 +37,7 @@ Maybe module: phy-x
 '''
 
 class VAE_RNN_PHYNN(nn.Module):
-    def __init__(self, param, device, sys_param={}, enc_index=0, dec_index=0, bias=False):
+    def __init__(self, param, device, sys_param={}, dataset="toy_lgssm", enc_index=0, dec_index=0, bias=False):
         super(VAE_RNN_PHYNN, self).__init__()
 
         self.y_dim = param.y_dim

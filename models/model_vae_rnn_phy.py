@@ -10,7 +10,7 @@ generating models."""
 
 
 class VAE_RNN_PHY(nn.Module):
-    def __init__(self, param, device, sys_param={}, bias=False):
+    def __init__(self, param, device, sys_param={}, dataset="toy_lgssm", bias=False):
         super(VAE_RNN_PHY, self).__init__()
 
         self.y_dim = param.y_dim
