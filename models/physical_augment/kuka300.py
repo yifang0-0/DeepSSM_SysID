@@ -2,16 +2,11 @@ import roboticstoolbox as rtb
 from roboticstoolbox.robot import DHRobot
 from roboticstoolbox.robot.DHLink import RevoluteDH
 import numpy as np
-# pyplot = rtb.backends.PyPlot.PyPlot()
-# pyplot.launch()
-# pyplot = rtb.backends.PyPlot.PyPlot()
-
-class myrobo(DHRobot):
-    
+import matplotlib as plt
+class kuka300(DHRobot):
     def __init__(self):
-        super().__init__(
-                [
-                    RevoluteDH(
+        links = [
+                RevoluteDH(
                             d= 0.675,                                                  # link length (Denavit-Hartenberg-Notation) 
                             a= 0.350,                                                              # link offset (Denavit-Hartenberg-Notation)
                             alpha= -np.pi/2,                                                          # link twist (Denavit-Hartenberg-Notation)
@@ -90,23 +85,28 @@ class myrobo(DHRobot):
                                 alpha= np.pi,
                                 I= [3.880e-2, 1.323e-1, 1.681e-1, 2.635e-2, 1.590e-3, -3.322e-3],
                                 r= [-66.63199e-3, 17.20624e-3, -16.63216e-3],
-                                m= 159.18,
+                                m= 9.18,
                                 Jm= 0.00173,
                                 G= 102.17,
                                 B= 0.0050314,
                                 Tc= [0.53832, -0.53832],
                                 qlim= [-350*np.pi/180, 350*np.pi/180]
-                               ),
-                ], name="KR300",)
+                               )
+                ]
+        
+        super().__init__(links, name="KR300")
+        self.payload(150)
         self.gravity = [0, 0, 9.81]
         self.qz = np.array([0, 0, 0, 0, 0, 0])  # zero angles
         self.qs = np.array([0, -np.pi/2, np.pi/2, 0, 0, 0])  # start at -90° pose
-        self.qr = np.array([0, -2/3*np.pi, 3/4*np.pi, 0, np.pi/4, 0])  # ready pose Z-Shape
+        self.qr = np.array([0, -1/2*np.pi, 3/4*np.pi, 0, np.pi/4, 0])  # ready pose Z-Shape
         self.qh = np.array([0, np.pi/2, 0, 0, 0, 0])  # hanging down
+        self.qd0 = np.array([0, 0, 0, 0, 0, 0])
         self.qt = np.pi / 180
+        self.dof = 6
+
         
-# dof = 6
-# t = myrobo() 
+
 # t.qz = np.random.rand(dof) 
 # print(t.qz,t)
 # t.qr = np.array([0, -2/3*np.pi, 3/4*np.pi, 0, np.pi/4, 0])  # ready pose Z-Shape
@@ -115,25 +115,3 @@ class myrobo(DHRobot):
 # acc = t.accel(t.qz,np.random.rand(dof) , np.random.rand(dof) )
 # print(t,acc, t.gravity)
 # print(t.inertia(t.qz))
-
-
-# from spatialmath import SE3, SE2
-# import imageio
-# from io import BytesIO
-# time = np.arange(0, 1, 0.1)  # time
-# T0 = SE3(-1, 0.5, 0,)  # initial pose
-# T1 = SE3(1, 1.5, 0)  # final pose
-# Ts = rtb.tools.trajectory.ctraj(T0, T1, time)
-# robot_fig = t.plot([0, 0,0,0,0,0])
-# robot_fig.add(t)
-# robot_fig.ax.set(xlim=(-1.5,
-#                        2), ylim=(-1.5, 2))
-
-# sol = t.ikine_LM(Ts)
-# print(sol)
-# for q in sol.q:
-#     t.q = q  # set the robot configuration
-#     # robot_fig.clf()
-#     t.plot(q)
-#     # print(q)
-# robot_fig.hold()
