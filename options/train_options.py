@@ -233,9 +233,9 @@ def get_dataset_options(dataset_name):
         dataset_options, unknown = dataset_parser.parse_known_args()
         
     elif dataset_name == 'industrobo':
-        dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: f-16')
+        dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: industrobo')
         dataset_parser.add_argument('--y_dim', type=int, default=1, help='dimension of y')
-        dataset_parser.add_argument('--u_dim', type=int, default=1, help='dimension of u')
+        dataset_parser.add_argument('--u_dim', type=int, default=2, help='dimension of u, the input with time')
         dataset_parser.add_argument('--input_channel', type=int, default=1, help='train which joint')
         # dataset_parser.add_argument('--input_type', type=str, default="FullMSine", help='input activation level')
         dataset_parser.add_argument('--seq_stride', type=int, default=None, help='window size stride')

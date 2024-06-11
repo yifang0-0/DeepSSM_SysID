@@ -1,5 +1,6 @@
-import kuka300
-import toy_lgssm
+from models.physical_augment.kuka300 import kuka300
+# import kuka300
+# import toy_lgssm
 import torch
 import torch.nn as nn
 import numpy as np
@@ -7,75 +8,93 @@ import numpy as np
 class MODEL_PHY():
     def __init__(self, phy_type):
         self.phy_type = phy_type
-        if self.phy_type == 'kuka300':
+        if self.phy_type == 'industrobo':
             self.model = kuka300()
         elif self.phy_type == 'toy_lgssm':
             # decide how to change or where to add the congifuration that what parts of the models are available (do I need seperated model for that or maybe, no)
             self.model == toy_lgssm()# can be initialed by adding A,B,C,D matrix here
             
-    def dynamic_model(self, u, x_pre, is_init, options):
-        if self.phy_type == 'kuka300':
+    def dynamic_model(self, u, x_pre):
+        if self.phy_type == 'industrobo':
             # forward dynamics (start from 6 dim)
             # Initial conditions
             batch_size = u.shape[0]
-            if is_init:
-                q0 = torch.tensor(self.model.qz)   # Initial joint positions
-                qd0 = torch.tensor(self.model.qd0)  # Initial joint velocities
-            else:
-                q0 = torch.tensor(self.model.qz)   # Initial joint positions
-                qd0 = torch.tensor(self.model.qd0)  # Initial joint velocities
-                
-            torque = torch.zeros((batch_size,6) + u.shape[2:])
-            time_test = torch.zeros((batch_size,1) + u.shape[2:])
+            x_dim = x_pre.shape[1]
+            dof = int(x_dim/2)
+
+            q = x_pre[:,0:dof].clone()  # Initial joint positions
+            qd = x_pre[:,dof:].clone() # Initial joint velocities
+
+            # q = torch.tensor(x_pre[:,0:dof])  
+            # qd = torch.tensor(x_pre[:,dof:])  
+
+            torque = torch.zeros(u.size())
             
-            torque = u[:,1:7]  # Example constant torques
-            time_test = u[:,0]
+            
+            # torque = u[:,1:dof]  # Example constant torques
+            # time_test = u[:,0]
             dof_num = self.model.dof
 
 
             q_lim_max =[]
             q_lim_min = []
+            # print("torque[0] before G",torque[0]) 
 
             for i in range(dof_num):
                 # Update torque by multiplying by gear ratio (assuming self.model.links[i].G is a scalar)
-                torque[:, i] *= self.model.links[i].G
+                torch.autograd.set_detect_anomaly(True)
+
+                torque[:, i] = u[:, i]*self.model.links[i].G
                 
                 # Append joint limits to lists
                 q_lim_min.append(torch.tensor(self.model.links[i].qlim[0]))
                 q_lim_max.append(torch.tensor(self.model.links[i].qlim[1]))
-                
-            
-                # Integrate the equations of motion
-                q_list = []
-                qd_list = []
-                qdd_list = []
+            # print("torque[0] after G",torque[0]) 
+            q_lim_min = torch.hstack(q_lim_min).to(device='cuda')
+            q_lim_max = torch.hstack(q_lim_max).to(device='cuda')
+            # Integrate the equations of motion
 
-                # Convert initial joint angles and velocities to tensors
-                q = torch.tensor(q0)
-                qd = torch.tensor(qd0)
 
-            for index,dt in enumerate(torch.diff(time_test,  dim=0)):
-                # Ensure joint positions are within limits
-                q = torch.clamp(q, q_lim_min, q_lim_max)
-                
+            # Convert initial joint angles and velocities to tensors
+
+            q_list = []
+            qd_list = []
+            qdd_list = []
+            dt = 1
+            # pi = 3.1415926
+            for i_batch in range(batch_size):
                 # Compute joint accelerations using forward dynamics
-                qdd = self.model.accel(q, qd, torque[index])
+                # print("q[i_batch], qd[i_batch], torque[i_batch]",q[i_batch], qd[i_batch], torque[i_batch])
+                # print("q[i_batch].shape, qd[i_batch].shape, torque[i_batch].shape",q[i_batch].shape, qd[i_batch].shape, torque[i_batch].shape)
                 
+                # qdd = self.model.accel(np.array(q[i_batch]), np.array(qd[i_batch]), np.array(torque[i_batch]))
+                # print(q[i_batch].device)
+                
+                q_np = q[i_batch].clone().detach().cpu().numpy()
+                qd_np = qd[i_batch].clone().detach().cpu().numpy()
+                torque_np = torque[i_batch].clone().detach().cpu().numpy()
+                
+                
+                qdd = self.model.accel(q_np, qd_np, torque_np)
+                
+
                 # Integrate to update joint velocities and positions
-                q = q + qd * dt
-                qd = qd + qdd * dt
-                
+                qd_ib = qd[i_batch] + torch.tensor(qdd * dt).to(device='cuda')
+                # print(qd_ib.device,q[i_batch].device)
+                q_ib = q[i_batch] + qd_ib * torch.tensor(dt).to(device='cuda')
+                q_ib = torch.max(torch.min(q_ib, q_lim_max), q_lim_min)
+                qd_ib 
                 # Append results to lists
-                q_list.append(q)
-                qd_list.append(qd)
-                qdd_list.append(qdd)
+                q_list.append(q_ib)
+                qd_list.append(q_ib)
+                qdd_list.append(torch.tensor(qdd))
 
             q_array = torch.stack(q_list)
             qd_array = torch.stack(qd_list)
             qdd_array = torch.stack(qdd_list)
-            
-            xt = torch.stack(q_array,qd_array)
-            
+
+            xt =  torch.cat((q_array,qd_array), dim=1).to(device='cuda')
+            # print(q_ib.device,q_array.device,xt.device)
         elif self.phy_type == 'toy_lgssm':
 
             A_prt =torch.tensor(self.param['A_prt'], dtype=torch.float32,device=self.device)
@@ -87,11 +106,13 @@ class MODEL_PHY():
 
         return xt
     
-    def measurement_model(self, ut, xt, options):
-        if self.phy_type == 'kuka300':
+    def measurement_model(self, ut, xt):
+        if self.phy_type == 'industrobo':
             # the output the position which is the first dim of state 
             # st.shape (batch_size, number of state (each state is 6 dim!))
-            return xt[:,0:6]
+            x_dim = xt.shape[1]
+            yt = xt[:,0:int(x_dim/2)].clone()
+            return yt
         elif self.phy_type == 'toy_lgssm':
         #         def measure_phy(self, z_mean_t, z_logvar_t):
         # if "lgssm" in self.dataset:

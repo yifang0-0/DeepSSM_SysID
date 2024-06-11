@@ -79,3 +79,5 @@ python main_single.py --n_epoch=5 --model='VAE-RNN-PHYNN' --h_dim=120 --z_dim=2 
     nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=40 --z_dim=2  --dataset='toy_lgssm_5_pre' --logdir='baseline_test_rnn_nodropout_sc'  --mpnt_wt=10  --do_test --do_train --train_rounds=5 &
     nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=20 --z_dim=2  --dataset='toy_lgssm_5_pre' --logdir='baseline_test_rnn_nodropout_sc'  --mpnt_wt=10  --do_test --do_train --train_rounds=5 &
     nohup python main_single.py --n_epoch=750 --model='AE-RNN' --h_dim=10 --z_dim=2  --dataset='toy_lgssm_5_pre' --logdir='baseline_test_rnn_nodropout_sc'  --mpnt_wt=10  --do_test --do_train --train_rounds=5 &
+ 
+ nohup python main_single.py --n_epoch=5 --model='AE-RNN' --h_dim=60  --dataset='industrobo' --logdir='test_industrobo_dim6'  --mpnt_wt=10  --do_test   --do_train --z_dim=12 --u_dim=6 --y_dim=6 &
