@@ -97,6 +97,10 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
         # original test set is unnoisy -> get noisy test set
         yshape = y_test.shape
         y_test_noisy = y_test + np.sqrt(1) * np.random.randn(yshape[0], yshape[1], yshape[2])
+    elif options['dataset'] == 'industrobo':
+        y_test_noisy = y_test*180/np.pi
+        y_sample_mu = y_sample_mu*180/np.pi
+        
     else:
         y_test_noisy = y_test
 
