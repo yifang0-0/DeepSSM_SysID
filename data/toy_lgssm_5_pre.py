@@ -36,6 +36,7 @@ def create_toy_lgssm_5_datasets(seq_len_train=None, seq_len_val=None, seq_len_te
         k_max_train = kwargs['k_max_train']
         k_max_val = kwargs['k_max_val']
         k_max_test = kwargs['k_max_test']
+        # print("k_max_train,k_max_val,k_max_test:")
     else:
         # Default option
         k_max_train = 2000
@@ -46,8 +47,8 @@ def create_toy_lgssm_5_datasets(seq_len_train=None, seq_len_val=None, seq_len_te
 
     # test set input
     # file_path = 'data/Toy_LGSSM/toy_lgssm_testdata.npz'
-    file_path_train = 'data/Toy_LGSSM/toy_lgssm_pre_trainingset_{}.npz'
-    file_path_test = 'data/Toy_LGSSM/toy_lgssm_testdata.npz'
+    file_path_train = 'data/Toy_LGSSM/toy_lgssm_pre_trainingset_shifted_{}.npz'
+    file_path_test = 'data/Toy_LGSSM/toy_lgssm_pre_testset_shifted.npz'
     
 
     ith_lgssm = kwargs["ith_round"]

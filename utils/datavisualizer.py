@@ -14,7 +14,7 @@ x: the true(KF) state
 
 # %% simplified version of the plot
 def plot_time_sequence_uncertainty_simp(data_y_true, data_y_sample_mu, data_y_sample_std, label_y, options, path_general, file_name_general,
-                                   batch_show, x_limit_show, length = 2000, start_index = 0):
+                                   batch_show, x_limit_show, length = 150, start_index = 0):
 
     # storage path
     file_name = file_name_general + '_timeEval_'+label_y

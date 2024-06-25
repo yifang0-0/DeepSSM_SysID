@@ -117,16 +117,24 @@ def get_system_options(dataset_name,dataset_options):
         if dataset_options.A_prt_idx==0:
             lgssm_system_parameter['A_prt'] = np.array([[0, 0], [0, 0]]) 
         elif dataset_options.A_prt_idx==1:
-            lgssm_system_parameter['A_prt'] = np.array([[0.6, 0.7], [0, 0.2]])
+            lgssm_system_parameter['A_prt'] = np.array([[0.6, 0.7], [-0.1, 0]])
         elif dataset_options.A_prt_idx==2:
             lgssm_system_parameter['A_prt'] = np.array([[0.7, 0.8], [0, 0.1]])  
             
         if dataset_options.B_prt_idx==0:
             lgssm_system_parameter['B_prt'] = np.array([[0], [0]]) 
         elif dataset_options.B_prt_idx==1:
+            lgssm_system_parameter['B_prt'] = np.array([[-1.1], [0]])
+        elif dataset_options.B_prt_idx==2:
             lgssm_system_parameter['B_prt'] = np.array([[-1], [0.1]])
     
-        lgssm_system_parameter['C'] = np.array([[1, 0]])
+        if dataset_options.C_prt_idx==0:
+            lgssm_system_parameter['C_prt'] = np.array([[0, 0]]) 
+        elif dataset_options.C_prt_idx==1:
+            lgssm_system_parameter['C_prt'] = np.array([[0.9, -0.1]]) 
+        elif dataset_options.C_prt_idx==2:
+            lgssm_system_parameter['C_prt'] = np.array([[1, 0]]) 
+        # lgssm_system_parameter['C'] = np.array([[1, 0]])
         lgssm_system_parameter['sigma_state'] = np.sqrt(0.25)
         lgssm_system_parameter['sigma_out'] = np.sqrt(1)
     
@@ -178,8 +186,10 @@ def get_dataset_options(dataset_name):
         dataset_parser.add_argument('--seq_len_train', type=int, default=64, help='training sequence length')
         dataset_parser.add_argument('--seq_len_test', type=int, default=None, help='test sequence length')
         dataset_parser.add_argument('--loss_type', type=int, default=0, help='0:normal loss, 1:measurement penalty')
-        dataset_parser.add_argument('--A_prt_idx', type=int, default=0, help='0:no knowledge, 1:partially known, 2:the identical A')
-        dataset_parser.add_argument('--B_prt_idx', type=int, default=0, help='0:no knowledge, 1:partially known, 2:the identical B')
+        dataset_parser.add_argument('--A_prt_idx', type=int, default=0, help='0:no knowledge, 1:know with bias, 2:the identical A')
+        dataset_parser.add_argument('--B_prt_idx', type=int, default=0, help='0:no knowledge, 1:know with bias, 2:the identical B')
+        dataset_parser.add_argument('--C_prt_idx', type=int, default=0, help='0:no knowledge, 1:know with bias, 2:the identical C')
+        
         dataset_parser.add_argument('--seq_len_val', type=int, default=64, help='validation sequence length')  # 512
         dataset_options, unknown = dataset_parser.parse_known_args()
 
@@ -191,8 +201,9 @@ def get_dataset_options(dataset_name):
         dataset_parser.add_argument('--seq_len_test', type=int, default=None, help='test sequence length')
         dataset_parser.add_argument('--seq_len_val', type=int, default=64, help='validation sequence length')  # 512
         dataset_parser.add_argument('--loss_type', type=int, default=0, help='0:normal loss, 1:measurement penalty')
-        dataset_parser.add_argument('--A_prt_idx', type=int, default=0, help='0:no knowledge, 1:partially known, 2:the identical A')
-        dataset_parser.add_argument('--B_prt_idx', type=int, default=0, help='0:no knowledge, 1:partially known, 2:the identical B')
+        dataset_parser.add_argument('--A_prt_idx', type=int, default=0, help='0:no knowledge, 1:know with bias, 2:the identical A')
+        dataset_parser.add_argument('--B_prt_idx', type=int, default=0, help='0:no knowledge, 1:know with bias, 2:the identical B')
+        dataset_parser.add_argument('--C_prt_idx', type=int, default=0, help='0:no knowledge, 1:know with bias, 2:the identical C')
         dataset_parser.add_argument('--k_max_train', type=int, default=2000, help='training set length')
         dataset_parser.add_argument('--k_max_test', type=int, default=5000, help='test set length')
         dataset_parser.add_argument('--k_max_val', type=int, default=2000, help='validation set length')  # 512

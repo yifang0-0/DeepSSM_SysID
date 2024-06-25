@@ -25,7 +25,7 @@ class AE_RNN(nn.Module):
         self.mpnt_wt = param.mpnt_wt
         self.param = sys_param
         self.dataset = dataset
-        self.phy_aug = MODEL_PHY(self.dataset)
+        self.phy_aug = MODEL_PHY(self.dataset, self.param, self.device)
         # print("self.device", self.device)
         # print(self.param['A_prt'], self.param['B_prt'],self.param['C'],self.mpnt_wt)
 
@@ -100,11 +100,13 @@ class AE_RNN(nn.Module):
         self.rnn = nn.GRU(self.h_dim, self.h_dim, self.n_layers, bias)
         
     def dyphy(self, u, x):
-        x_phy_t = self.phy_aug.dynamic_model(u.squeeze(-1),x.squeeze(-1))  
+
+        x_phy_t = self.phy_aug.dynamic_model(u,x)  
+
         return x_phy_t
     
     def mephy(self, u, x):
-        y_phy_t = self.phy_aug.measurement_model(u.squeeze(-1),x.squeeze(-1))               
+        y_phy_t = self.phy_aug.measurement_model(u,x)               
         return y_phy_t
     
     
@@ -120,9 +122,9 @@ class AE_RNN(nn.Module):
         # allocation
         loss = 0
         # initialization
-        h = torch.rand(self.n_layers, batch_size, self.h_dim, device=self.device)
+        h = torch.rand(self.n_layers, batch_size, self.h_dim, dtype=torch.float32,device=self.device)
         
-        x = torch.zeros(batch_size, self.z_dim, seq_len, device=self.device)
+        x = torch.zeros(batch_size, self.z_dim, seq_len, dtype=torch.float32, device=self.device)
         
 
         # for all time steps
@@ -130,41 +132,44 @@ class AE_RNN(nn.Module):
             # print("seq no.: ", t)
             # print("phi_u.is_cuda()", u[:, :, t].get_device())
             if t == 0:
-                x_t =  x[:,:,t].clone()
+                x_tm1 =  x[:,:,t].clone()
             else: 
-                x_t = x[:,:,t-1].clone()
+                x_tm1 = x[:,:,t-1].clone()
 
             # feature extraction: u_t
             phi_u_t = self.phi_u(u[:, :, t])
             if self.mpnt_wt>100:
                 # pure physical
-                x_mean_phy = self.dyphy(u[:, :, t],x_t)
-                x[:,:,t] = x_mean_phy
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
+                x_t = x_mean_phy
 
             elif  self.mpnt_wt>=10:
                 #physics augmented
                 dynn_phi = self.dynn(torch.cat([phi_u_t, h[-1]], 1))
                 x_mean_nn = self.x_mean(dynn_phi)
                 x_logvar = self.x_logvar(dynn_phi)
-                x_mean_phy = self.dyphy(u[:, :, t],x_t)
-                x[:,:,t] = x_mean_nn + x_mean_phy
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
+                x_t =  x_mean_nn + x_mean_phy
+                
                 
             elif self.mpnt_wt<=-10:
                 #physics guided
-                x_mean_phy = self.dyphy(u[:, :, t],x_t)
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
                 if x_mean_phy.dtype != self.x_phi_phy[0].weight.dtype:
                     x_mean_phy_f32 = x_mean_phy.to(self.x_phi_phy[0].weight.dtype)
-                x_phy_phi = self.x_phi_phy(x_mean_phy_f32)
+                    x_phy_phi = self.x_phi_phy(x_mean_phy_f32)
+                else:
+                    x_phy_phi = self.x_phi_phy(x_mean_phy)
                 dynn_phi = self.dynn_phy(torch.cat([phi_u_t, h[-1],x_phy_phi], 1))
                 x_mean_nn = self.x_mean(dynn_phi)
-                x[:,:,t] = x_mean_nn
-            else:
+                x_t = x_mean_nn
+            elif self.mpnt_wt<=0:
                 dynn_phi = self.dynn(torch.cat([phi_u_t, h[-1]], 1))
                 x_mean_nn = self.x_mean(dynn_phi)
-                x[:,:,t] = x_mean_nn
+                x_t = x_mean_nn
             
-            
-            
+            #save x_t
+            x[:,:,t] = x_t
             # recurrence: u_t+1 -> h_t+1
             _, h = self.rnn(phi_u_t.unsqueeze(0), h)
 
@@ -182,7 +187,6 @@ class AE_RNN(nn.Module):
             elif self.mpnt_wt>=10:
                 #physics augmented
                 # phi_x_t = self.phi_x(torch.cat([x_t, x_logvar], 1))
-                
                 phi_x_t = self.phi_x(x_t)
                 y_hat_nn = self.menn(phi_x_t)
                 y_hat_phy = self.mephy(u[:,:,t], x_t)
@@ -236,45 +240,47 @@ class AE_RNN(nn.Module):
         for t in range(seq_len):
             # torch.autograd.set_detect_anomaly(True)
             if t == 0:
-                x_t =  torch.zeros(batch_size, self.z_dim, device=self.device)
+                x_tm1 =  torch.zeros(batch_size, self.z_dim, device=self.device)
             else: 
-                x_t = x[:,:,t-1]
+                x_tm1 = x[:,:,t-1]
 
             # feature extraction: u_t
             phi_u_t = self.phi_u(u[:, :, t])
 
             if self.mpnt_wt>100:
                 # pure physical
-                x_mean_phy = self.dyphy(u[:, :, t],x_t)
-                x[:,:,t] = x_mean_phy
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
+                x_t = x_mean_phy
             elif  self.mpnt_wt>=10:
                 # physical augmentation CX
                 dynn_phi = self.dynn(torch.cat([phi_u_t, h[-1]], 1))
                 x_mean_nn = self.x_mean(dynn_phi)
 
-                x_mean_phy = self.dyphy(u[:, :, t],x_t)
-                x[:,:,t] = x_mean_nn + x_mean_phy
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
+                x_t = x_mean_nn + x_mean_phy
                 
             elif self.mpnt_wt<=-10:
                 #physics guided
-                x_mean_phy = self.dyphy(u[:, :, t],x_t)
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
                 if x_mean_phy.dtype != self.x_phi_phy[0].weight.dtype:
                     x_mean_phy_f32 = x_mean_phy.to(self.x_phi_phy[0].weight.dtype)
-                x_phy_phi = self.x_phi_phy(x_mean_phy_f32)
+                    x_phy_phi = self.x_phi_phy(x_mean_phy_f32)
+                else:
+                    x_phy_phi = self.x_phi_phy(x_mean_phy)
                 dynn_phi = self.dynn_phy(torch.cat([phi_u_t, h[-1],x_phy_phi], 1))
                 x_mean_nn = self.x_mean(dynn_phi)
-                x[:,:,t] = x_mean_nn
+                x_t = x_mean_nn
                 
             elif self.mpnt_wt<=0:
                 #pure nn
                 dynn_phi = self.dynn(torch.cat([phi_u_t, h[-1]], 1))
                 x_mean_nn = self.x_mean(dynn_phi)
-                x[:,:,t] = x_mean_nn
+                x_t = x_mean_nn
 
             # phi_x = self.phi_x(x[:,:,t])
             # y_hat[:, :, t] = self.menn(phi_x)
             
-            
+            x[:,:,t] = x_t 
             # recurrence: u_t+1 -> h_t+1
             _, h = self.rnn(phi_u_t.unsqueeze(0), h)
                         # print("all_loss", loss)

@@ -6,8 +6,10 @@ import torch.nn as nn
 import numpy as np
 
 class MODEL_PHY():
-    def __init__(self, phy_type):
+    def __init__(self, phy_type, sysparam, device):
         self.phy_type = phy_type
+        self.param = sysparam
+        self.device = device
         if self.phy_type == 'industrobo':
             self.model = kuka300()
         elif self.phy_type == 'toy_lgssm':
@@ -93,12 +95,15 @@ class MODEL_PHY():
             qd_array = torch.stack(qd_list)
             qdd_array = torch.stack(qdd_list)
 
-            xt =  torch.cat((q_array,qd_array), dim=1).to(device='cuda')
+            xt =  torch.cat((q_array,qd_array), dim=1).to(dtype=torch.float32,device='cuda')
             # print(q_ib.device,q_array.device,xt.device)
-        elif self.phy_type == 'toy_lgssm':
-
+        elif self.phy_type == 'toy_lgssm' or self.phy_type == 'toy_lgssm_5_pre':
+            batch_size = u.shape[0]
+            
             A_prt =torch.tensor(self.param['A_prt'], dtype=torch.float32,device=self.device)
+            
             A_prt = A_prt.expand(batch_size, -1, -1)
+            
 
             B_prt =torch.tensor(self.param['B_prt'], dtype=torch.float32,device=self.device)
             B_prt = B_prt.expand(batch_size, -1, -1)
@@ -112,18 +117,33 @@ class MODEL_PHY():
             # st.shape (batch_size, number of state (each state is 6 dim!))
             x_dim = xt.shape[1]
             yt = xt[:,0:int(x_dim/2)].clone()
+            
+            '''
+            yt = xt[:,0:int(x_dim/2)].clone()
+            instead of
+            yt = xt[:,0:int(x_dim/2)] 
+            to avoid inplace problem
+            https://discuss.pytorch.org/t/runtimeerror-one-of-the-variables-needed-for-gradient-computation-has-been-modified-by-an-inplace-operation-torch-floattensor-64-1-which-is-output-0-of-asstridedbackward0-is-at-version-3-expected-version-2-instead-hint-the-backtrace-further-a/171826/7
+            '''
             return yt
-        elif self.phy_type == 'toy_lgssm':
+        
+        elif self.phy_type == 'toy_lgssm' or self.phy_type == 'toy_lgssm_5_pre':
+            batch_size = ut.shape[0]
+            C_prt = torch.tensor( self.param['C_prt'], dtype=torch.float32,device=self.device)
+            C_prt = C_prt.expand(batch_size, -1, -1)
+            # print(C.shape,y.shape,ut.shape)
+            y = torch.matmul(C_prt,xt.unsqueeze(-1)).squeeze(-1)
+            return y
         #         def measure_phy(self, z_mean_t, z_logvar_t):
         # if "lgssm" in self.dataset:
-            z_mean_t, z_logvar_t = xt
-            C = torch.tensor( self.param['C'], dtype=torch.float32,device=self.device)
-            sigma = torch.tensor( self.param['sigma_out'], dtype=torch.float32,device=self.device)
-            sigma2 = torch.pow(sigma,2)
-            z_logvar_t = z_logvar_t.unsqueeze(-1)
-            z_var_t = torch.matmul(C*(z_logvar_t.exp()),C.T)
-            measure_mean = torch.matmul(C,z_mean_t.unsqueeze(-1)).squeeze(-1)
-            measure_var = (z_var_t+sigma2).squeeze(-1)                     
-            return (measure_mean, measure_var)
+            # z_mean_t, z_logvar_t = xt
+            # C = torch.tensor( self.param['C'], dtype=torch.float32,device=self.device)
+            # sigma = torch.tensor( self.param['sigma_out'], dtype=torch.float32,device=self.device)
+            # sigma2 = torch.pow(sigma,2)
+            # z_logvar_t = z_logvar_t.unsqueeze(-1)
+            # z_var_t = torch.matmul(C*(z_logvar_t.exp()),C.T)
+            # measure_mean = torch.matmul(C,z_mean_t.unsqueeze(-1)).squeeze(-1)
+            # measure_var = (z_var_t+sigma2).squeeze(-1)                     
+            # return (measure_mean, measure_var)
     
-            # return y
+            

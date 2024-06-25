@@ -104,6 +104,10 @@ def run_main_single(options, path_general, file_name_general):
         
     if "B_prt_idx" in options["dataset_options"]:
         file_name_general = file_name_general + '_B'+str(options["dataset_options"].B_prt_idx)
+    
+    if "C_prt_idx" in options["dataset_options"]:
+        print("C here!")
+        file_name_general = file_name_general + '_C'+str(options["dataset_options"].C_prt_idx)
 
     path = path_general + 'data/'
     # check if path exists and create otherwise
@@ -113,9 +117,6 @@ def run_main_single(options, path_general, file_name_general):
     set_redirects(path, file_name_general)
 
 
-
-    # if options['known_parameter'] == 'B':
-    #     options['model_options'].u_dim = 2
 
         
 
@@ -151,6 +152,10 @@ def run_main_single(options, path_general, file_name_general):
                                   train_batch_size=options["train_options"].batch_size,
                                   test_batch_size=options["test_options"].batch_size, 
                                   known_parameter=options["known_parameter"],
+                                  k_max_train = options["dataset_options"].k_max_train,
+                                  k_max_test = options["dataset_options"].k_max_test,
+                                  k_max_val = options["dataset_options"].k_max_val,
+                                  
                                   ith_round = i)
         
         # Compute normalizers
