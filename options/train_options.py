@@ -13,15 +13,15 @@ def get_train_options(dataset_name):
     train_parser.add_argument('--print_every', type=int, default=1, help='output print of training')
     train_parser.add_argument('--test_every', type=int, default=5, help='test during training after every n epoch')
     
-    if dataset_name == 'narendra_li':
-        train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
-        train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
-        train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
-        train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=10, help='check learning rater after')
-        train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
+    # if dataset_name == 'narendra_li':
+    #     train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
+    #     train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
+    #     train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
+    #     train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=10, help='check learning rater after')
+    #     train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
 
-    elif dataset_name == 'toy_lgssm':
-        train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
+    if dataset_name == 'toy_lgssm':
+        train_parser.add_argument('--n_epochs', type=int, default=500, help='number of epochs')
         train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
         train_parser.add_argument('--min_lr', type=float, default=1e-7, help='minimal learning rate')
         train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=30, help='check learning rater after')
@@ -43,24 +43,24 @@ def get_train_options(dataset_name):
         train_parser.add_argument('--lr_scheduler_factor', type=float, default=5, help='adapt learning rate by')
 
 
-    elif dataset_name == 'wiener_hammerstein':
-        train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
-        train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
-        train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
-        train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=20, help='check learning rater after')
-        train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
+    # elif dataset_name == 'wiener_hammerstein':
+    #     train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
+    #     train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
+    #     train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
+    #     train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=20, help='check learning rater after')
+    #     train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
         
-    elif dataset_name == 'f16gvt':
-        train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
-        train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
-        train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
-        train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=20, help='check learning rater after')
-        train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
+    # elif dataset_name == 'f16gvt':
+    #     train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
+    #     train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
+    #     train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
+    #     train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=20, help='check learning rater after')
+    #     train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
         
     elif dataset_name == 'industrobo':
-        train_parser.add_argument('--n_epochs', type=int, default=750, help='number of epochs')
+        train_parser.add_argument('--n_epochs', type=int, default=1000, help='number of epochs')
         train_parser.add_argument('--init_lr', type=float, default=1e-3, help='initial learning rate')
-        train_parser.add_argument('--min_lr', type=float, default=1e-6, help='minimal learning rate')
+        train_parser.add_argument('--min_lr', type=float, default=1e-7, help='minimal learning rate')
         train_parser.add_argument('--lr_scheduler_nepochs', type=float, default=20, help='check learning rater after')
         train_parser.add_argument('--lr_scheduler_factor', type=float, default=10, help='adapt learning rate by')
 
@@ -111,43 +111,58 @@ def get_main_options():
 
 def get_system_options(dataset_name,dataset_options):
     if dataset_name == 'toy_lgssm_5_pre' or dataset_name == 'toy_lgssm':
-        lgssm_system_parameter = {}
-        lgssm_system_parameter['A'] = np.array([[0.7, 0.8], [0, 0.1]])
-        lgssm_system_parameter['B'] = np.array([[-1], [0.1]])
+        system_parameter = {}
+        system_parameter['A'] = np.array([[0.7, 0.8], [0, 0.1]])
+        system_parameter['B'] = np.array([[-1], [0.1]])
         if dataset_options.A_prt_idx==0:
-            lgssm_system_parameter['A_prt'] = np.array([[0, 0], [0, 0]]) 
+            system_parameter['A_prt'] = np.array([[0, 0], [0, 0]]) 
         elif dataset_options.A_prt_idx==1:
-            lgssm_system_parameter['A_prt'] = np.array([[0.6, 0.7], [-0.1, 0]])
+            system_parameter['A_prt'] = np.array([[0.6, 0.7], [-0.1, 0]])
         elif dataset_options.A_prt_idx==2:
-            lgssm_system_parameter['A_prt'] = np.array([[0.7, 0.8], [0, 0.1]])  
+            system_parameter['A_prt'] = np.array([[0.7, 0.8], [0, 0.1]])  
             
         if dataset_options.B_prt_idx==0:
-            lgssm_system_parameter['B_prt'] = np.array([[0], [0]]) 
+            system_parameter['B_prt'] = np.array([[0], [0]]) 
         elif dataset_options.B_prt_idx==1:
-            lgssm_system_parameter['B_prt'] = np.array([[-1.1], [0]])
+            system_parameter['B_prt'] = np.array([[-1.1], [0]])
         elif dataset_options.B_prt_idx==2:
-            lgssm_system_parameter['B_prt'] = np.array([[-1], [0.1]])
+            system_parameter['B_prt'] = np.array([[-1], [0.1]])
     
         if dataset_options.C_prt_idx==0:
-            lgssm_system_parameter['C_prt'] = np.array([[0, 0]]) 
+            system_parameter['C_prt'] = np.array([[0, 0]]) 
         elif dataset_options.C_prt_idx==1:
-            lgssm_system_parameter['C_prt'] = np.array([[0.9, -0.1]]) 
+            system_parameter['C_prt'] = np.array([[0.9, -0.1]]) 
         elif dataset_options.C_prt_idx==2:
-            lgssm_system_parameter['C_prt'] = np.array([[1, 0]]) 
+            system_parameter['C_prt'] = np.array([[1, 0]]) 
         # lgssm_system_parameter['C'] = np.array([[1, 0]])
-        lgssm_system_parameter['sigma_state'] = np.sqrt(0.25)
-        lgssm_system_parameter['sigma_out'] = np.sqrt(1)
+        system_parameter['sigma_state'] = np.sqrt(0.25)
+        system_parameter['sigma_out'] = np.sqrt(1)
     
     elif dataset_name == 'toy_lgssm_2dy_5_pre':
-        lgssm_system_parameter = {}
-        lgssm_system_parameter['A'] = np.array([[0.7, 0.8], [0, 0.1]])
-        lgssm_system_parameter['B'] = np.array([[-1], [0.1]])
-        lgssm_system_parameter['C'] = np.array([[1, 0], [0, 1]]).transpose()
-        lgssm_system_parameter['sigma_state'] = np.sqrt(0.25)
-        lgssm_system_parameter['sigma_out'] = np.sqrt(1)
+        system_parameter = {}
+        system_parameter['A'] = np.array([[0.7, 0.8], [0, 0.1]])
+        system_parameter['B'] = np.array([[-1], [0.1]])
+        system_parameter['C'] = np.array([[1, 0], [0, 1]]).transpose()
+        system_parameter['sigma_state'] = np.sqrt(0.25)
+        system_parameter['sigma_out'] = np.sqrt(1)
+    elif dataset_name == "industrobo":
+        system_parameter = {}
+        system_parameter['dt'] = dataset_options.dt
+        system_parameter['roboname'] = dataset_options.roboname
+        if dataset_options.if_G ==1:
+            system_parameter['if_G'] = True
+        else:
+            system_parameter['if_G'] = False
+            
+        if dataset_options.if_clip ==1:
+            system_parameter['if_clip'] = True
+        else:
+            system_parameter['if_clip'] = False
+
+        
     else:
-        lgssm_system_parameter = {}
-    return lgssm_system_parameter
+        system_parameter = {}
+    return system_parameter
 
 def get_dataset_options(dataset_name):
 
@@ -248,11 +263,19 @@ def get_dataset_options(dataset_name):
         dataset_parser.add_argument('--y_dim', type=int, default=1, help='dimension of y')
         dataset_parser.add_argument('--u_dim', type=int, default=2, help='dimension of u, the input with time')
         dataset_parser.add_argument('--input_channel', type=int, default=1, help='train which joint')
+        dataset_parser.add_argument('--dt', type=float, default=0.1, help='sampling rate here')
+        dataset_parser.add_argument('--if_clip', type=int, default=1, help='if clip 1, else 0')
+        dataset_parser.add_argument('--if_G', type=int, default=1, help='if know Gear info 1, else 0')
+        dataset_parser.add_argument('--if_simulation', type=int, default=0, help='if use simulated dataset 1, else 0')
+        dataset_parser.add_argument('--roboname', type=str, default="KUKA300", help='choose which robot model we use here')
         # dataset_parser.add_argument('--input_type', type=str, default="FullMSine", help='input activation level')
         dataset_parser.add_argument('--seq_stride', type=int, default=None, help='window size stride')
-        dataset_parser.add_argument('--seq_len_train', type=int, default=256, help='training sequence length')
-        dataset_parser.add_argument('--seq_len_test', type=int, default=64, help='test sequence length')
-        dataset_parser.add_argument('--seq_len_val', type=int, default=64, help='validation sequence length')
+        dataset_parser.add_argument('--seq_len_train', type=int, default=606, help='training sequence length')
+        dataset_parser.add_argument('--seq_len_test', type=int, default=606, help='test sequence length')
+        dataset_parser.add_argument('--seq_len_val', type=int, default=606, help='validation sequence length')
+        dataset_parser.add_argument('--k_max_train', type=int, default=35990, help='training set length')
+        dataset_parser.add_argument('--k_max_test', type=int, default=3636, help='test set length')
+        dataset_parser.add_argument('--k_max_val', type=int, default=3998, help='validation set length')  # 512
         dataset_options, unknown = dataset_parser.parse_known_args()
 
 

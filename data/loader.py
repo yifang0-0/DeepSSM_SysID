@@ -86,12 +86,13 @@ def load_dataset(dataset, dataset_options, train_batch_size, test_batch_size, **
 
     elif dataset == 'industrobo':
         print("dataset_options.seq_stride," ,dataset_options.seq_stride)
-        dataset_train, dataset_valid, dataset_test = create_industrobo_datasets(dataset_options.seq_len_train,
-                                                                            dataset_options.seq_len_val,
-                                                                            dataset_options.seq_len_test,
-                                                                            dataset_options.seq_stride,
-                                                                            dataset_options.y_dim,
-                                                                            dataset_options.input_channel,
+        dataset_train, dataset_valid, dataset_test = create_industrobo_datasets(seq_len_train = dataset_options.seq_len_train,
+                                                                            seq_len_val = dataset_options.seq_len_val,
+                                                                            seq_len_test = dataset_options.seq_len_test,
+                                                                            seq_stride = dataset_options.seq_stride,
+                                                                            sample_rate = dataset_options.dt,
+                                                                            input_lev = dataset_options.input_channel,
+                                                                            file_name = dataset_options.if_simulation,
                                                                             **kwargs
                                                                             )
         # Dataloader

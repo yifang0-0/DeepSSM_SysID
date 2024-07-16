@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
 # import user-writte files
 import utils.datavisualizer as dv
 import utils.dataevaluater as de
@@ -98,8 +99,8 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
         yshape = y_test.shape
         y_test_noisy = y_test + np.sqrt(1) * np.random.randn(yshape[0], yshape[1], yshape[2])
     elif options['dataset'] == 'industrobo':
-        y_test_noisy = y_test*180/np.pi
-        y_sample_mu = y_sample_mu*180/np.pi
+        y_test_noisy = y_test
+        y_sample_mu = y_sample_mu
         
     else:
         y_test_noisy = y_test
@@ -156,11 +157,13 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     # compute NRMSE
     nrmse = de.compute_nrmse(y_test_noisy, y_sample_mu, doprint=True)
 
-
+    # r2 score
+    r2 = de.compute_R2(y_test_noisy, y_sample_mu)
 
     print('\nModel: mean VAF = {}'.format(vaf))
     print('Model: mean RMSE = {}'.format(rmse))
     print('Model: mean NRMSE = {}'.format(nrmse))
+    print('Model: mean R2 = {}'.format(r2))
     print('Model: mean std = {}'.format(np.mean(y_sample_sigma)))
     print('Model: mean log Likelihood = {}'.format(marginal_likeli))
 
@@ -239,12 +242,15 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
 
 
     # %% Collect data
-
+    if  options['dataset'] == 'industrobo':
+        seq_len_train = int((options['dataset_options'].seq_len_train/options['dataset_options'].dt)/10)
+    else:
+        seq_len_train = options['dataset_options'].seq_len_train
     # options_dict
     options_dict = {'h_dim': options['model_options'].h_dim,
                     'z_dim': options['model_options'].z_dim,
                     'n_layers': options['model_options'].n_layers,
-                    'seq_len_train': options['dataset_options'].seq_len_train,
+                    'seq_len_train': seq_len_train,
                     'batch_size': options['train_options'].batch_size,
                     'lr_scheduler_nepochs': options['train_options'].lr_scheduler_nepochs,
                     'lr_scheduler_factor': options['train_options'].lr_scheduler_factor,
@@ -253,7 +259,8 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     test_dict = {'marginal_likeli': marginal_likeli,
                  'vaf': vaf,
                  'rmse': rmse,
-                 'nrmse':nrmse}
+                 'nrmse':nrmse,
+                 'R2': r2}
     df = {}
     # dataframe
     df.update(options_dict)

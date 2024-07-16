@@ -1,7 +1,27 @@
 import numpy as np
 import torch
 import torch.distributions as tdist
+from sklearn.metrics import r2_score
 
+
+def compute_R2(y, yhat, doprint=False):
+    num_outputs = y.shape[1]
+    y = y.transpose(1, 0, 2)
+    y = y.reshape(num_outputs, -1)
+    yhat = yhat.transpose(1, 0, 2)
+    yhat = yhat.reshape(num_outputs, -1)
+    r2 = np.zeros([num_outputs])
+    for i in range(num_outputs):
+        r2[i] = r2_score(y[i,:], yhat[i,:])
+
+    # print output
+    if doprint:
+        for i in range(num_outputs):
+            print('R2 y{} = {:%.3f}'.format(i + 1, r2[i]))
+
+    return r2
+    
+    
 
 # computes the VAF (variance accounted for)
 def compute_vaf(y, yhat, doprint=False):

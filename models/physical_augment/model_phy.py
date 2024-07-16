@@ -1,4 +1,8 @@
 from models.physical_augment.kuka300 import kuka300
+from models.physical_augment.kuka300 import kuka300
+import roboticstoolbox as rtb
+
+
 # import kuka300
 # import toy_lgssm
 import torch
@@ -6,17 +10,59 @@ import torch.nn as nn
 import numpy as np
 
 class MODEL_PHY():
-    def __init__(self, phy_type, sysparam, device):
+    def __init__(self, phy_type, sysparam, device ):
         self.phy_type = phy_type
         self.param = sysparam
         self.device = device
+        self.if_clip = self.param['if_clip']
+        self.if_G = self.param['if_G']
+        print("self.param['roboname']: ",self.param['roboname'])
+        print("if_clip: ",self.if_clip)
+        print("if_G: ",self.if_G)
+        
         if self.phy_type == 'industrobo':
-            self.model = kuka300()
+            if self.param['roboname'] == "KUKA300":
+                self.model = kuka300(robot_type="correct")
+                self.dof = self.model.dof
+            elif self.param['roboname'] == "KUKA300noffset":
+                self.model = kuka300(robot_type="no_offset")
+                self.dof = self.model.dof
+                
+            elif self.param['roboname'] == "Puma560":
+                # self.if_clip = False
+                # self.if_G = False
+                self.model = rtb.models.DH.Puma560()
+                self.dof = 6
+                
         elif self.phy_type == 'toy_lgssm':
             # decide how to change or where to add the congifuration that what parts of the models are available (do I need seperated model for that or maybe, no)
             self.model == toy_lgssm()# can be initialed by adding A,B,C,D matrix here
+    
+    def qdd_func(self, t, q, qd):
+        # Define your acceleration function here.
+        # For example, let's assume a simple linear system qdd = -k * q - b * qd
+        k = 1.0
+        b = 0.1
+        return -k * q - b * qd
             
-    def dynamic_model(self, u, x_pre):
+    def rk4_step(self, t, q, qd, dt, qdd_prev):
+        k1 = self.qdd_func(t, q, qd)
+        k2 = self.qdd_func(t + 0.5 * dt, q + 0.5 * dt * qd, qd + 0.5 * dt * k1)
+        k3 = self.qdd_func(t + 0.5 * dt, q + 0.5 * dt * (qd + 0.5 * dt * k1), qd + 0.5 * dt * k2)
+        k4 = self.qdd_func(t + dt, q + dt * (qd + 0.5 * dt * k3), qd + dt * k3)
+        
+        qdd = (k1 + 2 * k2 + 2 * k3 + k4) / 6
+
+        # Update position and velocity using the kinematic equations
+        q_new = q + qd * dt + 0.5 * qdd_prev * (dt ** 2) + (1/6) * (qdd - qdd_prev) * (dt ** 2)
+        qd_new = qd + 0.5 * (qdd + qdd_prev) * dt
+        
+        return q_new, qd_new, qdd
+       
+    def dynamic_model(self, u, x_pre, if_clip_qd = True, if_clip_q=True):
+        if_clip_qd = self.if_clip
+        if_clip_q = self.if_clip
+        
         if self.phy_type == 'industrobo':
             # forward dynamics (start from 6 dim)
             # Initial conditions
@@ -35,7 +81,7 @@ class MODEL_PHY():
             
             # torque = u[:,1:dof]  # Example constant torques
             # time_test = u[:,0]
-            dof_num = self.model.dof
+            dof_num = self.dof
 
 
             q_lim_max =[]
@@ -45,13 +91,25 @@ class MODEL_PHY():
             for i in range(dof_num):
                 # Update torque by multiplying by gear ratio (assuming self.model.links[i].G is a scalar)
                 torch.autograd.set_detect_anomaly(True)
-
-                torque[:, i] = u[:, i]*self.model.links[i].G
+                if self.if_G == True:
+                    G = [212.76, 203.52, 192.75, 156, 156, 102.17]
+                    torque[:, i] = u[:, i]*G[i]
                 
                 # Append joint limits to lists
-                q_lim_min.append(torch.tensor(self.model.links[i].qlim[0]))
-                q_lim_max.append(torch.tensor(self.model.links[i].qlim[1]))
-            # print("torque[0] after G",torque[0]) 
+                if self.if_clip == True: 
+                    q_min = [-90*np.pi/180, -30*np.pi/180, -110*np.pi/180, -180*np.pi/180, -90*np.pi/180, -180*np.pi/180]      
+                    q_max = [90*np.pi/180,  40*np.pi/180,  40*np.pi/180,  180*np.pi/180, 90*np.pi/180,  180*np.pi/180]
+              
+                    qd_lim = [63.4, 61.7, 59.5 , 91.5,85.8,131.3]
+
+                else:
+                    q_min = [-180*np.pi/180, -180*np.pi/180, -180*np.pi/180, -180*np.pi/180, -180*np.pi/180, -180*np.pi/180]      
+                    q_max = [180*np.pi/180,  180*np.pi/180,  180*np.pi/180,  180*np.pi/180, 180*np.pi/180,  180*np.pi/180]
+                    qd_lim = [360, 360, 360, 360, 360, 360]
+
+            q_lim_min.append(torch.tensor(q_min[i]))
+            q_lim_max.append(torch.tensor(q_max[i]))
+    
             q_lim_min = torch.hstack(q_lim_min).to(device='cuda')
             q_lim_max = torch.hstack(q_lim_max).to(device='cuda')
             # Integrate the equations of motion
@@ -62,34 +120,51 @@ class MODEL_PHY():
             q_list = []
             qd_list = []
             qdd_list = []
-            dt = 1
+            dt = self.param['dt']
+            
+
+            qd_lim_min = []
+            qd_lim_max = []
+
+            for i in qd_lim:
+                qd_lim_min.append(-i/180*np.pi)
+                qd_lim_max.append(i/180*np.pi)
+            
+            qd_lim_min = torch.tensor(qd_lim_min).to(device='cuda')
+            qd_lim_max = torch.tensor(qd_lim_max).to(device='cuda')
             # pi = 3.1415926
             for i_batch in range(batch_size):
                 # Compute joint accelerations using forward dynamics
-                # print("q[i_batch], qd[i_batch], torque[i_batch]",q[i_batch], qd[i_batch], torque[i_batch])
-                # print("q[i_batch].shape, qd[i_batch].shape, torque[i_batch].shape",q[i_batch].shape, qd[i_batch].shape, torque[i_batch].shape)
-                
-                # qdd = self.model.accel(np.array(q[i_batch]), np.array(qd[i_batch]), np.array(torque[i_batch]))
-                # print(q[i_batch].device)
                 
                 q_np = q[i_batch].clone().detach().cpu().numpy()
                 qd_np = qd[i_batch].clone().detach().cpu().numpy()
                 torque_np = torque[i_batch].clone().detach().cpu().numpy()
                 
                 
-                qdd = self.model.accel(q_np, qd_np, torque_np)
-                
+                qdd = self.model.accel(q_np, qd_np, torque_np, gravity = [0,0,9.81])
+                q_i, qd_i, qdd_i = self.rk4_step(0, q_np, qd_np, dt, qdd)
 
                 # Integrate to update joint velocities and positions
-                qd_ib = qd[i_batch] + torch.tensor(qdd * dt).to(device='cuda')
-                # print(qd_ib.device,q[i_batch].device)
-                q_ib = q[i_batch] + qd_ib * torch.tensor(dt).to(device='cuda')
-                q_ib = torch.max(torch.min(q_ib, q_lim_max), q_lim_min)
-                qd_ib 
+                qd_ib = torch.tensor(qd_i).to(device='cuda')
+                q_ib = torch.tensor(q_i).to(device='cuda')
+                
+                if self.if_clip == True:
+                    # qd_i= np.clip(qd_i,qd_lim_min,qd_lim_max )
+                    qd_ib = torch.max(torch.min(qd_ib, qd_lim_max), qd_lim_min)
+                    q_ib = torch.max(torch.min(q_ib, q_lim_max), q_lim_min)
+                    
+                
+                
+                # qd_ib = torch.tensor(qd_i).to(device='cuda')
+                # q_ib = torch.tensor(q_i).to(device='cuda')
+   
+                
+                # q_ib = torch.max(torch.min(q_ib, q_lim_max), q_lim_min)
+    
                 # Append results to lists
                 q_list.append(q_ib)
-                qd_list.append(q_ib)
-                qdd_list.append(torch.tensor(qdd))
+                qd_list.append(qd_ib)
+                qdd_list.append(torch.tensor(qdd).to(device='cuda'))
 
             q_array = torch.stack(q_list)
             qd_array = torch.stack(qd_list)
