@@ -147,7 +147,7 @@ class AE_RNN(nn.Module):
                 #physics augmented
                 dynn_phi = self.dynn(torch.cat([phi_u_t, h[-1]], 1))
                 x_mean_nn = self.x_mean(dynn_phi)
-                x_logvar = self.x_logvar(dynn_phi)
+                # x_logvar = self.x_logvar(dynn_phi)
                 x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
                 x_t =  x_mean_nn + x_mean_phy
                 

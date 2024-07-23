@@ -6,7 +6,9 @@ def create_industrobo_datasets(seq_len_train=None, seq_len_val=None, seq_len_tes
     if file_name == 0:
         file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/forward_with_val.mat"
     else:
-        file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/simulated.mat"
+        # file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/simulated.mat"
+        file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/simulated_simposition_rad.mat"
+        
     print(file_name_train)
     # read the file into variable
     

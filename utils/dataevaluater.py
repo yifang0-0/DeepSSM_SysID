@@ -2,7 +2,60 @@ import numpy as np
 import torch
 import torch.distributions as tdist
 from sklearn.metrics import r2_score
+from scipy.spatial.distance import directed_hausdorff
+from scipy.stats import pearsonr
+from dtaidistance import dtw
 
+def compute_dtw(y, yhat, doprint=False):
+    num_outputs = y.shape[1]
+    y = y.transpose(1, 0, 2)
+    y = y.reshape(num_outputs, -1)
+    yhat = yhat.transpose(1, 0, 2)
+    yhat = yhat.reshape(num_outputs, -1)
+    dtws = np.zeros([num_outputs])
+    for i in range(num_outputs):
+        dtws[i]  =  dtw.distance(y[i,:], yhat[i,:])
+
+    # print output
+    if doprint:
+        for i in range(num_outputs):
+            print('dtw y{} = {:%.3f}'.format(i + 1, dtws[i]))
+    return dtws
+
+
+def compute_husdfdis(y, yhat, doprint=False):
+    num_outputs = y.shape[1]
+    y = y.transpose(1, 0, 2)
+    y = y.reshape(num_outputs, -1)
+    yhat = yhat.transpose(1, 0, 2)
+    yhat = yhat.reshape(num_outputs, -1)
+    husdfdis = np.zeros([num_outputs])
+    for i in range(num_outputs):
+        husdfdis[i]  = max(directed_hausdorff(y[i,:], yhat[i,:])[0], directed_hausdorff(yhat[i,:], y[i,:])[0])
+
+    # print output
+    if doprint:
+        for i in range(num_outputs):
+            print('husdfdis y{} = {:%.3f}'.format(i + 1, husdfdis[i]))
+
+    return husdfdis
+    
+def compute_crcoef(y, yhat, doprint=False):
+    num_outputs = y.shape[1]
+    y = y.transpose(1, 0, 2)
+    y = y.reshape(num_outputs, -1)
+    yhat = yhat.transpose(1, 0, 2)
+    yhat = yhat.reshape(num_outputs, -1)
+    crcoef = np.zeros([num_outputs])
+    for i in range(num_outputs):
+        crcoef[i], _ = pearsonr(y[i,:], yhat[i,:])
+
+    # print output
+    if doprint:
+        for i in range(num_outputs):
+            print('coefficient y{} = {:%.3f}'.format(i + 1, crcoef[i]))
+
+    return crcoef
 
 def compute_R2(y, yhat, doprint=False):
     num_outputs = y.shape[1]

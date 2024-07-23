@@ -157,12 +157,25 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     # compute NRMSE
     nrmse = de.compute_nrmse(y_test_noisy, y_sample_mu, doprint=True)
 
-    # r2 score
+    # compute r2
     r2 = de.compute_R2(y_test_noisy, y_sample_mu)
+    
+    # compute dtw
+    # dtw = de.compute_dtw(y_test_noisy, y_sample_mu)
+    
+    # compute husdfdis
+    # husdfdis = de.compute_husdfdis(y_test_noisy, y_sample_mu)
+    
+    # compute crcoef
+    crcoef = de.compute_crcoef(y_test_noisy, y_sample_mu)
+
 
     print('\nModel: mean VAF = {}'.format(vaf))
     print('Model: mean RMSE = {}'.format(rmse))
     print('Model: mean NRMSE = {}'.format(nrmse))
+    # print('Model: mean dtw = {}'.format(dtw))
+    # print('Model: mean Hausdorff Distance = {}'.format(rmse))
+    print('Model: mean Correlation Coefficient = {}'.format(crcoef))
     print('Model: mean R2 = {}'.format(r2))
     print('Model: mean std = {}'.format(np.mean(y_sample_sigma)))
     print('Model: mean log Likelihood = {}'.format(marginal_likeli))
@@ -260,7 +273,11 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
                  'vaf': vaf,
                  'rmse': rmse,
                  'nrmse':nrmse,
-                 'R2': r2}
+                 'R2': r2,
+                #  'dtw':dtw,
+                #  'Hausdorff Distance':husdfdis,
+                 'Correlation Coefficient':crcoef,
+                 }
     df = {}
     # dataframe
     df.update(options_dict)
