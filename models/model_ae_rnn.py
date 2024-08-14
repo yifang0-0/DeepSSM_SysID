@@ -237,6 +237,7 @@ class AE_RNN(nn.Module):
 
         print("mpnt_wt: ",self.mpnt_wt)
         # for all time steps
+        
         for t in range(seq_len):
             # torch.autograd.set_detect_anomaly(True)
             if t == 0:
@@ -258,7 +259,11 @@ class AE_RNN(nn.Module):
 
                 x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
                 x_t = x_mean_nn + x_mean_phy
-                
+                # if t<2000 and t%3==0:
+                    # print("ith output: x_t: ",t, x_t[:,0])
+                    # print("ith output: x_mean_phy: ", x_mean_phy[:,6])
+                    
+                    
             elif self.mpnt_wt<=-10:
                 #physics guided
                 x_mean_phy = self.dyphy(u[:, :, t],x_tm1)

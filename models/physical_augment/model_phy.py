@@ -1,5 +1,5 @@
 from models.physical_augment.kuka300 import kuka300
-from models.physical_augment.kuka300 import kuka300
+from models.physical_augment.randomRobo import randomRobo
 import roboticstoolbox as rtb
 
 
@@ -32,6 +32,11 @@ class MODEL_PHY():
                 # self.if_clip = False
                 # self.if_G = False
                 self.model = rtb.models.DH.Puma560()
+                self.dof = 6
+            elif self.param['roboname'] == "randomRobo":
+                # self.if_clip = False
+                # self.if_G = False
+                self.model = randomRobo()
                 self.dof = 6
                 
         elif self.phy_type == 'toy_lgssm':
@@ -101,11 +106,13 @@ class MODEL_PHY():
                     q_max = [90*np.pi/180,  40*np.pi/180,  40*np.pi/180,  180*np.pi/180, 90*np.pi/180,  180*np.pi/180]
               
                     qd_lim = [63.4, 61.7, 59.5 , 91.5,85.8,131.3]
-
+                    print("q_min set")
                 else:
                     q_min = [-180*np.pi/180, -180*np.pi/180, -180*np.pi/180, -180*np.pi/180, -180*np.pi/180, -180*np.pi/180]      
                     q_max = [180*np.pi/180,  180*np.pi/180,  180*np.pi/180,  180*np.pi/180, 180*np.pi/180,  180*np.pi/180]
                     qd_lim = [360, 360, 360, 360, 360, 360]
+                    print("q_min not set")
+                    
 
             q_lim_min.append(torch.tensor(q_min[i]))
             q_lim_max.append(torch.tensor(q_max[i]))

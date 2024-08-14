@@ -273,7 +273,7 @@ def get_dataset_options(dataset_name):
         dataset_parser.add_argument('--seq_len_train', type=int, default=606, help='training sequence length')
         dataset_parser.add_argument('--seq_len_test', type=int, default=606, help='test sequence length')
         dataset_parser.add_argument('--seq_len_val', type=int, default=606, help='validation sequence length')
-        dataset_parser.add_argument('--k_max_train', type=int, default=35990, help='training set length')
+        dataset_parser.add_argument('--k_max_train', type=float, default=1, help='percentage of used length to the full training set length 35990')
         dataset_parser.add_argument('--k_max_test', type=int, default=3636, help='test set length')
         dataset_parser.add_argument('--k_max_val', type=int, default=3998, help='validation set length')  # 512
         dataset_options, unknown = dataset_parser.parse_known_args()

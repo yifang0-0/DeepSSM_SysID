@@ -67,6 +67,19 @@ def create_industrobo_datasets(seq_len_train=None, seq_len_val=None, seq_len_tes
     # time_val  = np.asarray(time_val).T
     # time_test  = np.asarray(time_test).T
     
+        # length of all data sets
+    if bool(kwargs) and ("k_max_train" in kwargs):
+        k_max_train = kwargs['k_max_train']
+        print("k_max_train is: ", k_max_train)
+
+    else:
+        # Default option
+        k_max_train = 1
+        
+    u_train = u_train[0:int(u_train.shape[0]*k_max_train)] 
+    y_train = y_train[0:int(y_train.shape[0]*k_max_train)] 
+ 
+    
     print("seq_stride: ", seq_stride)
     
     # %% maybe not including the specific time step yet
