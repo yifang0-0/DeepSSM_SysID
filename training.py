@@ -39,6 +39,8 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
             u = u.to(options['device'])
             y = y.to(options['device'])
 
+            
+            
             # set the optimizer
             modelstate.optimizer.zero_grad()
             # forward pass over model
@@ -64,6 +66,7 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
             # print("total_loss", total_loss)
 
             loss=total_loss / total_points  # total_batches
+            print("total_batch, total_points, total_loss, loss\n", total_batches, total_points, total_loss, loss)
             
             # output to console
             if i % train_options.print_every == 0:

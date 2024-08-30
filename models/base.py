@@ -11,7 +11,18 @@ class Normalizer1D(nn.Module):
         super(Normalizer1D, self).__init__()
         self.register_buffer('scale', torch.tensor(scale, dtype=torch.float32) + self._epsilon)
         self.register_buffer('offset', torch.tensor(offset, dtype=torch.float32))
-
+    
+    def to_dict(self):
+        """
+        Save the normalization parameters in a dictionary.
+        Returns:
+            dict: A dictionary containing 'scale' and 'offset' tensors.
+        """
+        return {
+            'scale': self.scale,  # Convert to NumPy array if needed
+            'offset': self.offset  # Convert to NumPy array if needed
+        }
+    
     def normalize(self, x):
         x = x.permute(0, 2, 1)
         x = (x - self.offset) / self.scale

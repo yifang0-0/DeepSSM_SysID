@@ -10,12 +10,14 @@ import torch.nn as nn
 import numpy as np
 
 class MODEL_PHY():
-    def __init__(self, phy_type, sysparam, device ):
+    def __init__(self, phy_type, sysparam, device,  normalizer_dict_input=None, normalizer_dict_output=None):
         self.phy_type = phy_type
         self.param = sysparam
         self.device = device
         self.if_clip = self.param['if_clip']
         self.if_G = self.param['if_G']
+        self.normalizer_dict_input=normalizer_dict_input
+        self.normalizer_dict_output=normalizer_dict_output
         print("self.param['roboname']: ",self.param['roboname'])
         print("if_clip: ",self.if_clip)
         print("if_G: ",self.if_G)
@@ -64,9 +66,10 @@ class MODEL_PHY():
         
         return q_new, qd_new, qdd
        
-    def dynamic_model(self, u, x_pre, if_clip_qd = True, if_clip_q=True):
+    def dynamic_model(self, u, x_pre, normalizer_dict_input=None,normalizer_dict_output=None,if_clip_qd = True, if_clip_q=True,  ):
         if_clip_qd = self.if_clip
         if_clip_q = self.if_clip
+    
         
         if self.phy_type == 'industrobo':
             # forward dynamics (start from 6 dim)
@@ -78,10 +81,24 @@ class MODEL_PHY():
             q = x_pre[:,0:dof].clone()  # Initial joint positions
             qd = x_pre[:,dof:].clone() # Initial joint velocities
 
+            # q = q.permute(0, 2, 1)
+            q = q * normalizer_dict_output.scale + normalizer_dict_output.offset
+            
+            # q.permute(0, 2, 1)
+            # print(q,normalizer_dict_output.scale )
+            # qd = qd.permute(0, 2, 1)
+            qd = qd * normalizer_dict_output.scale + normalizer_dict_output.offset
+            # qd.permute(0, 2, 1)
+        #             x = x.permute(0, 2, 1)
+        # x = (x - self.offset) / self.scale
+        # return x.permute(0, 2, 1)
+            # u_p = u.permute(0, 2, 1)
+            u_p = u.clone() * normalizer_dict_input.scale + normalizer_dict_input.offset
+            # u_p.permute(0, 2, 1)
             # q = torch.tensor(x_pre[:,0:dof])  
             # qd = torch.tensor(x_pre[:,dof:])  
 
-            torque = torch.zeros(u.size())
+            torque = torch.zeros(u_p.size())
             
             
             # torque = u[:,1:dof]  # Example constant torques
@@ -98,27 +115,29 @@ class MODEL_PHY():
                 torch.autograd.set_detect_anomaly(True)
                 if self.if_G == True:
                     G = [212.76, 203.52, 192.75, 156, 156, 102.17]
-                    torque[:, i] = u[:, i]*G[i]
-                
-                # Append joint limits to lists
-                if self.if_clip == True: 
-                    q_min = [-90*np.pi/180, -30*np.pi/180, -110*np.pi/180, -180*np.pi/180, -90*np.pi/180, -180*np.pi/180]      
-                    q_max = [90*np.pi/180,  40*np.pi/180,  40*np.pi/180,  180*np.pi/180, 90*np.pi/180,  180*np.pi/180]
-              
-                    qd_lim = [63.4, 61.7, 59.5 , 91.5,85.8,131.3]
-                    print("q_min set")
-                else:
-                    q_min = [-180*np.pi/180, -180*np.pi/180, -180*np.pi/180, -180*np.pi/180, -180*np.pi/180, -180*np.pi/180]      
-                    q_max = [180*np.pi/180,  180*np.pi/180,  180*np.pi/180,  180*np.pi/180, 180*np.pi/180,  180*np.pi/180]
-                    qd_lim = [360, 360, 360, 360, 360, 360]
-                    print("q_min not set")
+                    torque[:, i] = u_p[:, i]*G[i]
                     
+            # Append joint limits to lists
+            if self.if_clip == True: 
+                q_lim_min = [-90*np.pi/180, -30*np.pi/180, -110*np.pi/180, -180*np.pi/180, -90*np.pi/180, -180*np.pi/180]      
+                q_lim_max = [90*np.pi/180,  40*np.pi/180,  40*np.pi/180,  180*np.pi/180, 90*np.pi/180,  180*np.pi/180]
+                # this is for new clip
+                qd_lim = [63.4, 61.7, 59.5 , 91.5,85.8,131.3]
 
-            q_lim_min.append(torch.tensor(q_min[i]))
-            q_lim_max.append(torch.tensor(q_max[i]))
+            else:
+                q_lim_min = [-500*np.pi/180, -500*np.pi/180, -500*np.pi/180, -500*np.pi/180, -500*np.pi/180, -500*np.pi/180]      
+                q_lim_max = [500*np.pi/180,  500*np.pi/180,  500*np.pi/180,  500*np.pi/180, 500*np.pi/180,  500*np.pi/180]
+                # qd_lim = [360, 360, 360, 360, 360, 360]
+                # This is for old clip
+                qd_lim = [360, 360, 360, 360,360,360]
+                # qd_lim = [163.4, 561.7, 159.5 , 51.5,15.8,31.3]
+                
+                
     
-            q_lim_min = torch.hstack(q_lim_min).to(device='cuda')
-            q_lim_max = torch.hstack(q_lim_max).to(device='cuda')
+            q_lim_min = torch.tensor(q_lim_min).to(device='cuda')
+            q_lim_max = torch.tensor(q_lim_max).to(device='cuda')
+            
+            # print(q_lim_min,q_lim_max)
             # Integrate the equations of motion
 
 
@@ -129,7 +148,10 @@ class MODEL_PHY():
             qdd_list = []
             dt = self.param['dt']
             
-
+            '''
+            the old code updated the set limit so it is actually incorrect...
+            I have to rerun everything
+            '''
             qd_lim_min = []
             qd_lim_max = []
 
@@ -146,7 +168,7 @@ class MODEL_PHY():
                 q_np = q[i_batch].clone().detach().cpu().numpy()
                 qd_np = qd[i_batch].clone().detach().cpu().numpy()
                 torque_np = torque[i_batch].clone().detach().cpu().numpy()
-                
+
                 
                 qdd = self.model.accel(q_np, qd_np, torque_np, gravity = [0,0,9.81])
                 q_i, qd_i, qdd_i = self.rk4_step(0, q_np, qd_np, dt, qdd)
@@ -155,10 +177,10 @@ class MODEL_PHY():
                 qd_ib = torch.tensor(qd_i).to(device='cuda')
                 q_ib = torch.tensor(q_i).to(device='cuda')
                 
-                if self.if_clip == True:
+                # if self.if_clip == True:
                     # qd_i= np.clip(qd_i,qd_lim_min,qd_lim_max )
-                    qd_ib = torch.max(torch.min(qd_ib, qd_lim_max), qd_lim_min)
-                    q_ib = torch.max(torch.min(q_ib, q_lim_max), q_lim_min)
+                qd_ib = torch.max(torch.min(qd_ib, qd_lim_max), qd_lim_min)
+                q_ib = torch.max(torch.min(q_ib, q_lim_max), q_lim_min)
                     
                 
                 
@@ -176,6 +198,14 @@ class MODEL_PHY():
             q_array = torch.stack(q_list)
             qd_array = torch.stack(qd_list)
             qdd_array = torch.stack(qdd_list)
+
+            # q_array = q_array.permute(0, 2, 1)
+            q_array = (q_array - normalizer_dict_output.offset) / normalizer_dict_output.scale 
+            # q_array.permute(0, 2, 1)
+            
+            # qd_array = qd_array.permute(0, 2, 1)
+            qd_array = (qd_array - normalizer_dict_output.offset) / normalizer_dict_output.scale 
+            # qd_array.permute(0, 2, 1)
 
             xt =  torch.cat((q_array,qd_array), dim=1).to(dtype=torch.float32,device='cuda')
             # print(q_ib.device,q_array.device,xt.device)

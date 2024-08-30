@@ -212,6 +212,8 @@ def get_dataset_options(dataset_name):
         dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: lgssm')
         dataset_parser.add_argument('--y_dim', type=int, default=1, help='dimension of y')
         dataset_parser.add_argument('--u_dim', type=int, default=1, help='dimension of u')
+        # dataset_parser.add_argument('--x_phy_w', type=float, default=1, help='phy weight here')
+        # dataset_parser.add_argument('--x_nn_w', type=float, default=1, help='nn weight here') 
         dataset_parser.add_argument('--seq_len_train', type=int, default=64, help='training sequence length')
         dataset_parser.add_argument('--seq_len_test', type=int, default=None, help='test sequence length')
         dataset_parser.add_argument('--seq_len_val', type=int, default=64, help='validation sequence length')  # 512
@@ -291,7 +293,8 @@ def get_model_options(model_type, dataset_name, dataset_options):
     model_parser = argparse.ArgumentParser(description='Model Parameter')
     model_parser.add_argument('--y_dim', type=int, default=y_dim, help='dimension of y')
     model_parser.add_argument('--u_dim', type=int, default=u_dim, help='dimension of u')
-
+    model_parser.add_argument('--x_phy_w', type=float, default=1, help='phy weight here')
+    model_parser.add_argument('--x_nn_w', type=float, default=1, help='nn weight here') 
     """Not used datasets"""
     """if dataset_name == 'cascaded_tank':
         model_parser.add_argument('--h_dim', type=int, default=60, help='dimension of det. latent variable h')

@@ -13,18 +13,22 @@ generating models."""
 
 
 class AE_RNN(nn.Module):
-    def __init__(self, param, device,  sys_param={},  dataset="toy_lgssm", bias=False):
+    def __init__(self, param, device,  sys_param={},  dataset="toy_lgssm", bias=False, ):
         super(AE_RNN, self).__init__()
 
         self.y_dim = param.y_dim
         self.u_dim = param.u_dim
         self.h_dim = param.h_dim
         self.z_dim = param.z_dim
+        self.x_phy_w = param.x_phy_w
+        self.x_nn_w = param.x_nn_w
         self.n_layers = param.n_layers
         self.device = device
         self.mpnt_wt = param.mpnt_wt
         self.param = sys_param
         self.dataset = dataset
+
+        
         self.phy_aug = MODEL_PHY(self.dataset, self.param, self.device)
         # print("self.device", self.device)
         # print(self.param['A_prt'], self.param['B_prt'],self.param['C'],self.mpnt_wt)
@@ -99,21 +103,23 @@ class AE_RNN(nn.Module):
         # recurrence function (f_theta) -> Recurrence
         self.rnn = nn.GRU(self.h_dim, self.h_dim, self.n_layers, bias)
         
-    def dyphy(self, u, x):
+    def dyphy(self, u, x, u_norm_dict, y_norm_dict):
 
-        x_phy_t = self.phy_aug.dynamic_model(u,x)  
+        x_phy_t = self.phy_aug.dynamic_model(u,x, u_norm_dict, y_norm_dict)  
 
         return x_phy_t
+    
+    # def mephy(self, u, x, u_norm_dict, y_norm_dict):
+    #     y_phy_t = self.phy_aug.measurement_model(u,x, u_norm_dict, y_norm_dict)               
+    #     return y_phy_t
+    
     
     def mephy(self, u, x):
         y_phy_t = self.phy_aug.measurement_model(u,x)               
         return y_phy_t
     
-    
 
-    
-
-    def forward(self, u, y):
+    def forward(self, u, y, u_norm_dict, y_norm_dict):
         #  batch size
         torch.autograd.set_detect_anomaly(True)
         batch_size = y.shape[0]
@@ -140,7 +146,7 @@ class AE_RNN(nn.Module):
             phi_u_t = self.phi_u(u[:, :, t])
             if self.mpnt_wt>100:
                 # pure physical
-                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1, u_norm_dict, y_norm_dict)
                 x_t = x_mean_phy
 
             elif  self.mpnt_wt>=10:
@@ -148,13 +154,13 @@ class AE_RNN(nn.Module):
                 dynn_phi = self.dynn(torch.cat([phi_u_t, h[-1]], 1))
                 x_mean_nn = self.x_mean(dynn_phi)
                 # x_logvar = self.x_logvar(dynn_phi)
-                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
-                x_t =  x_mean_nn + x_mean_phy
-                
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1, u_norm_dict, y_norm_dict)
+                x_t =  self.x_nn_w*x_mean_nn + self.x_phy_w*x_mean_phy
+                # print("w1,w2: ", self.x_phy_w, self.x_nn_w)
                 
             elif self.mpnt_wt<=-10:
                 #physics guided
-                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1, u_norm_dict, y_norm_dict)
                 if x_mean_phy.dtype != self.x_phi_phy[0].weight.dtype:
                     x_mean_phy_f32 = x_mean_phy.to(self.x_phi_phy[0].weight.dtype)
                     x_phy_phi = self.x_phi_phy(x_mean_phy_f32)
@@ -180,7 +186,8 @@ class AE_RNN(nn.Module):
             if self.mpnt_wt>100:
                 # pure physical constraints
                 y_hat_phy = self.mephy(u[:,:,t],x_t)
-                y_hat[:, :, t] = y_hat_phy
+                y_hat = y_hat_phy
+                loss += torch.sum((y_hat-y[:, :, t]) ** 2)
 
 
 
@@ -190,9 +197,9 @@ class AE_RNN(nn.Module):
                 phi_x_t = self.phi_x(x_t)
                 y_hat_nn = self.menn(phi_x_t)
                 y_hat_phy = self.mephy(u[:,:,t], x_t)
-                y_hat = y_hat_nn+y_hat_phy
+                y_hat = self.x_nn_w*y_hat_nn+self.x_phy_w*y_hat_phy
                 loss += torch.sum((y_hat-y[:, :, t]) ** 2)
-                
+                # print("loss now,   y_hat,y\n", loss, y_hat[0],y[0, :, t],(y_hat[0]-y[0, :, t]) ** 2,torch.sum((y_hat[0]-y[0, :, t]) ** 2), y_hat.shape)
             elif self.mpnt_wt<=-10:
                 #physics guided
                 phi_x_t = self.phi_x(x_t)
@@ -205,6 +212,7 @@ class AE_RNN(nn.Module):
                     
                 y_hat = self.menn_phy(torch.cat([phi_x_t,y_phy_phi],1))
                 loss += torch.sum((y_hat-y[:, :, t]) ** 2)
+
             elif self.mpnt_wt<=0:
                 #pure nn
                 phi_x_t = self.phi_x(x_t)
@@ -224,13 +232,14 @@ class AE_RNN(nn.Module):
                 
         return loss
 
-    def generate(self, u):
+    def generate(self, u, u_norm_dict, y_norm_dict):
         # get the batch size
         batch_size = u.shape[0]
         # length of the sequence to generate
         seq_len = u.shape[-1]
         y_hat = torch.zeros(batch_size, self.y_dim, seq_len, device=self.device)
         y_hat_sigma =  torch.zeros(batch_size, self.y_dim, seq_len, device=self.device)
+
 
         x = torch.zeros(batch_size, self.z_dim, seq_len, device=self.device)
         h = torch.rand(self.n_layers, batch_size, self.h_dim, device=self.device)
@@ -250,23 +259,27 @@ class AE_RNN(nn.Module):
 
             if self.mpnt_wt>100:
                 # pure physical
-                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1, u_norm_dict, y_norm_dict)
                 x_t = x_mean_phy
             elif  self.mpnt_wt>=10:
                 # physical augmentation CX
                 dynn_phi = self.dynn(torch.cat([phi_u_t, h[-1]], 1))
                 x_mean_nn = self.x_mean(dynn_phi)
 
-                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
-                x_t = x_mean_nn + x_mean_phy
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1, u_norm_dict, y_norm_dict)
+                # x_t = x_mean_nn + x_mean_phy
+                x_t =  self.x_nn_w*x_mean_nn + self.x_phy_w*x_mean_phy
+                
                 # if t<2000 and t%3==0:
                     # print("ith output: x_t: ",t, x_t[:,0])
-                    # print("ith output: x_mean_phy: ", x_mean_phy[:,6])
+                # print("ith output: x_mean_phy: ", x_mean_phy[:,6]*180/3.14)
+                # print("ith output: x_mean_phy: ", x_mean_phy[:,0]*180/3.14)
+                
                     
                     
             elif self.mpnt_wt<=-10:
                 #physics guided
-                x_mean_phy = self.dyphy(u[:, :, t],x_tm1)
+                x_mean_phy = self.dyphy(u[:, :, t],x_tm1, u_norm_dict, y_norm_dict)
                 if x_mean_phy.dtype != self.x_phi_phy[0].weight.dtype:
                     x_mean_phy_f32 = x_mean_phy.to(self.x_phi_phy[0].weight.dtype)
                     x_phy_phi = self.x_phi_phy(x_mean_phy_f32)
@@ -302,7 +315,10 @@ class AE_RNN(nn.Module):
                 phi_x_t = self.phi_x(x_t)
                 y_hat_nn = self.menn(phi_x_t)
                 y_hat_phy = self.mephy(u[:,:,t],x_t)
-                y_hat[:, :, t] = y_hat_nn+y_hat_phy
+                y_hat[:, :, t] = self.x_nn_w*y_hat_nn+self.x_phy_w*y_hat_phy
+                # print(y_hat.shape)
+                # print(" y_hat,y\n", y_hat[3, :, t] )
+                
             elif self.mpnt_wt<=-10:
                 # physics guided 
                 phi_x_t = self.phi_x(x_t)
@@ -317,7 +333,6 @@ class AE_RNN(nn.Module):
                 y_hat[:, :, t] = self.menn(phi_x)
                 
             else:
-                
                 # panelty
                 phi_x = self.phi_x(torch.cat([x[:,:,t], x_logvar], 1))
                 y_hat[:, :, t]  = self.menn(phi_x)

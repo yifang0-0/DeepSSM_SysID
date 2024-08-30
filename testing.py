@@ -62,12 +62,14 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     for i, (u_test, y_test) in enumerate(loaders['test']):
         # getting output distribution parameter only implemented for selected models
         u_test = u_test.to(options['device'])
+        y_test = y_test.to(options['device'])
+        
         # print("the original size of u and y",u_test.shape,y_test.shape)
         # y_sample, y_sample_mu, y_sample_sigma, z_sample_mu, z_sample_sigma = modelstate.model.generate(u_test)
         # y_sample, y_sample_mu, y_sample_sigma= modelstate.model.generate(u_test)
         
         # %% toy_lgssm and rnn-indusrobo has z returned
-        y_sample, y_sample_mu, y_sample_sigma, z = modelstate.model.generate(u_test)
+        y_sample, y_sample_mu, y_sample_sigma, z = modelstate.model.generate(u_test, y_test)
         z = z.cpu().detach().numpy()
         
         # if  'toy_lgssm' in options['dataset']:

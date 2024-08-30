@@ -15,6 +15,7 @@ class DynamicModel(nn.Module):
         self.kwargs = kwargs
         self.normalizer_input = normalizer_input
         self.normalizer_output = normalizer_output
+        # self.normalizer
         self.zero_initial_state = False
 
         model_options = options['model_options']
@@ -61,18 +62,25 @@ class DynamicModel(nn.Module):
     def forward(self, u, y=None):
         if self.normalizer_input is not None:
             u = self.normalizer_input.normalize(u)
+            normalizer_dict_u = self.normalizer_input.to_dict()
+            
         if y is not None and self.normalizer_output is not None:
             y = self.normalizer_output.normalize(y)
-
-        loss = self.m(u, y)
+            normalizer_dict_y = self.normalizer_input.to_dict()
+        loss = self.m(u, y, self.normalizer_input, self.normalizer_output)
 
         return loss
 
     def generate(self, u, y=None):
         if self.normalizer_input is not None:
             u = self.normalizer_input.normalize(u)
+            normalizer_dict_u = self.normalizer_input.to_dict()
+            
+        if y is not None and self.normalizer_output is not None:
+            y = self.normalizer_output.normalize(y)
+            normalizer_dict_y = self.normalizer_input.to_dict()
         try:
-            y_sample, y_sample_mu, y_sample_sigma, z = self.m.generate(u)
+            y_sample, y_sample_mu, y_sample_sigma, z = self.m.generate(u, self.normalizer_input, self.normalizer_output)
             # %% I don't understand this part???
             if self.normalizer_output is not None:
                 y_sample = self.normalizer_output.unnormalize(y_sample)

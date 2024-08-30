@@ -91,6 +91,9 @@ def create_industrobo_datasets(seq_len_train=None, seq_len_val=None, seq_len_tes
     dataset_train = IODataset(u_train, y_train, seq_len_train, seq_stride)
     dataset_val = IODataset(u_val, y_val, seq_len_val, seq_stride)
     dataset_test = IODataset(u_test, y_test, seq_len_test, None)
+    # dataset_test = IODataset(u_val, y_val, seq_len_val, seq_stride)
+    # dataset_val  = IODataset(u_test, y_test, seq_len_test, None)
+
 
     print("dataset_train.u.shape, dataset_train.y.shape")
     print(dataset_train.u.shape, dataset_train.y.shape)
