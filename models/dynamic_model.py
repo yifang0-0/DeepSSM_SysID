@@ -62,11 +62,11 @@ class DynamicModel(nn.Module):
     def forward(self, u, y=None):
         if self.normalizer_input is not None:
             u = self.normalizer_input.normalize(u)
-            normalizer_dict_u = self.normalizer_input.to_dict()
+            # normalizer_dict_u = self.normalizer_input.to_dict()
             
         if y is not None and self.normalizer_output is not None:
             y = self.normalizer_output.normalize(y)
-            normalizer_dict_y = self.normalizer_input.to_dict()
+            # normalizer_dict_y = self.normalizer_input.to_dict()
         loss = self.m(u, y, self.normalizer_input, self.normalizer_output)
 
         return loss

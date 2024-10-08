@@ -170,7 +170,8 @@ def run_main_single(options, path_general, file_name_general):
                                 model=options["model"],
                                 options=options,
                                 normalizer_input=normalizer_input,
-                                normalizer_output=normalizer_output)
+                                normalizer_output=normalizer_output,
+                                 )
         modelstate.model.to(options['device'])
         if options['do_train']:
             # train the model

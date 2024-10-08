@@ -4,6 +4,7 @@ __pycache__/
 .idea/
 # logging
 log/
+log_before_09sept/
 log_Server/
 log_before_16april_1/
 # data which are too big or not used
