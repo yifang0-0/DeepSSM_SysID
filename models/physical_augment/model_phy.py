@@ -14,21 +14,27 @@ class MODEL_PHY():
         self.phy_type = phy_type
         self.param = sysparam
         self.device = device
-        self.if_clip = self.param['if_clip']
-        self.if_G = self.param['if_G']
+
         self.normalizer_dict_input=normalizer_dict_input
         self.normalizer_dict_output=normalizer_dict_output
-        print("self.param['roboname']: ",self.param['roboname'])
-        print("if_clip: ",self.if_clip)
-        print("if_G: ",self.if_G)
+
         
         if self.phy_type == 'industrobo':
+            self.if_clip = self.param['if_clip']
+            self.if_level2 = self.param['if_level2']
+            self.if_level0 = self.param['if_level0']
+            self.if_G = self.param['if_G']
+            print("self.param['roboname']: ",self.param['roboname'])
+            print("if_clip: ",self.if_clip)
+            print("if_level2: ",self.if_level2)
+            print("if_level0: ",self.if_level0)
+            print("if_G: ",self.if_G)
             if self.param['roboname'] == "KUKA300":
                 self.model = kuka300(robot_type="correct")
                 self.dof = self.model.dof
-            elif self.param['roboname'] == "KUKA300noffset":
-                self.model = kuka300(robot_type="no_offset")
-                self.dof = self.model.dof
+            # elif self.param['roboname'] == "KUKA300noffset":
+            #     self.model = kuka300(robot_type="no_offset")
+            #     self.dof = self.model.dof
                 
             elif self.param['roboname'] == "Puma560":
                 # self.if_clip = False
@@ -43,32 +49,58 @@ class MODEL_PHY():
                 
         elif self.phy_type == 'toy_lgssm':
             # decide how to change or where to add the congifuration that what parts of the models are available (do I need seperated model for that or maybe, no)
-            self.model == toy_lgssm()# can be initialed by adding A,B,C,D matrix here
-    
-    def qdd_func(self, t, q, qd):
-        # Define your acceleration function here.
-        # For example, let's assume a simple linear system qdd = -k * q - b * qd
-        k = 1.0
-        b = 0.1
-        return -k * q - b * qd
-            
-    def rk4_step(self, t, q, qd, dt, qdd_prev):
-        k1 = self.qdd_func(t, q, qd)
-        k2 = self.qdd_func(t + 0.5 * dt, q + 0.5 * dt * qd, qd + 0.5 * dt * k1)
-        k3 = self.qdd_func(t + 0.5 * dt, q + 0.5 * dt * (qd + 0.5 * dt * k1), qd + 0.5 * dt * k2)
-        k4 = self.qdd_func(t + dt, q + dt * (qd + 0.5 * dt * k3), qd + dt * k3)
+            # self.model == toy_lgssm()
+            # can be initialed by adding A,B,C,D matrix here
+            pass
         
-        qdd = (k1 + 2 * k2 + 2 * k3 + k4) / 6
+    def qdd_func(self, torque, q, qd, robot):
+        qd = qd
+        qdd = robot.accel( q,qd, torque,gravity=[0,0,9.81])
+        return qd, qdd
 
-        # Update position and velocity using the kinematic equations
-        q_new = q + qd * dt + 0.5 * qdd_prev * (dt ** 2) + (1/6) * (qdd - qdd_prev) * (dt ** 2)
-        qd_new = qd + 0.5 * (qdd + qdd_prev) * dt
+
+    def rk4_step(self, qdd_func, q, dq, dt, torque, robot):
+        # k_q1 =    dq
         
-        return q_new, qd_new, qdd
+        k_dq1,k_ddq1=    qdd_func(torque, q, dq,robot)
+        # k_q2 =    (dq + 0.5  * k_ddq1)
+        k_dq2,k_ddq2 =   qdd_func(torque, q + 0.5* dt  * k_dq1 , dq + 0.5* dt  * k_ddq1,robot)
+        # k_q3 =    (dq + 0.5  * k_ddq2)
+        k_dq3,k_ddq3 =   qdd_func(torque, q + 0.5  * dt *  k_dq2, dq + 0.5  * dt * k_ddq2, robot)
+        # k_q4 =    (dq + k_ddq3)
+        k_dq4,k_ddq4 =   qdd_func(torque, q + dt *  k_dq3, dq + dt * k_ddq3, robot)
+
+        # Update position and velocity
+        new_ddq = (k_ddq1 + 2.0 * k_ddq2 + 2.0 * k_ddq3 + k_ddq4)/6.0*dt
+        new_dq = (k_dq1 + 2.0 * k_dq2 + 2.0 * k_dq3 + k_dq4)/6.0*dt
+        
+        q_next = q + new_dq
+        dq_next = dq + new_ddq
+        # dq_next = dq + (dt ) * (k_dq1)
+        # q_next = q + (dt) * (dq_next )
+        return q_next, dq_next, new_ddq
+    # def qdd_func(self, t, q, qd):
+    #     # Define your acceleration function here.
+    #     # For example, let's assume a simple linear system qdd = -k * q - b * qd
+    #     k = 1.0
+    #     b = 0.1
+    #     return -k * q - b * qd
+            
+    # def rk4_step(self, t, q, qd, dt, qdd_prev):
+    #     k1 = self.qdd_func(t, q, qd)
+    #     k2 = self.qdd_func(t + 0.5 * dt, q + 0.5 * dt * qd, qd + 0.5 * dt * k1)
+    #     k3 = self.qdd_func(t + 0.5 * dt, q + 0.5 * dt * (qd + 0.5 * dt * k1), qd + 0.5 * dt * k2)
+    #     k4 = self.qdd_func(t + dt, q + dt * (qd + 0.5 * dt * k3), qd + dt * k3)
+        
+    #     qdd = (k1 + 2 * k2 + 2 * k3 + k4) / 6
+
+    #     # Update position and velocity using the kinematic equations
+    #     q_new = q + qd * dt + 0.5 * qdd_prev * (dt ** 2) + (1/6) * (qdd - qdd_prev) * (dt ** 2)
+    #     qd_new = qd + 0.5 * (qdd + qdd_prev) * dt
+        
+    #     return q_new, qd_new, qdd
        
-    def dynamic_model(self, u, x_pre, normalizer_dict_input=None,normalizer_dict_output=None,if_clip_qd = True, if_clip_q=True,  ):
-        if_clip_qd = self.if_clip
-        if_clip_q = self.if_clip
+    def dynamic_model(self, u, x_pre, normalizer_dict_input=None,normalizer_dict_output=None  ):
     
         
         if self.phy_type == 'industrobo':
@@ -169,9 +201,10 @@ class MODEL_PHY():
                 qd_np = qd[i_batch].clone().detach().cpu().numpy()
                 torque_np = torque[i_batch].clone().detach().cpu().numpy()
 
+                q_i, qd_i, qdd_i = self.rk4_step(self.qdd_func,  q_np, qd_np, dt,torque_np, self.model)
                 
-                qdd = self.model.accel(q_np, qd_np, torque_np, gravity = [0,0,9.81])
-                q_i, qd_i, qdd_i = self.rk4_step(0, q_np, qd_np, dt, qdd)
+                # qdd = self.model.accel(q_np, qd_np, torque_np, gravity = [0,0,9.81])
+                # q_i, qd_i, qdd_i = self.rk4_step(0, q_np, qd_np, dt, qdd)
 
                 # Integrate to update joint velocities and positions
                 qd_ib = torch.tensor(qd_i).to(device='cuda')
@@ -183,17 +216,21 @@ class MODEL_PHY():
                 q_ib = torch.max(torch.min(q_ib, q_lim_max), q_lim_min)
                     
                 
-                
+                if self.if_level2 == True:
+                    # qd_ib += qd[i_batch] *torch.tensor([-0.03,-0.05,-0.05,-0.06,-0.05,-0.05]).to(device='cuda')
+                    qd_ib += qd[i_batch] *torch.tensor([-0.05,0.1,-0.2,0.05,0.1,-0.1]).to(device='cuda')
+                    # ([-0.05,0.1,-0.2,0.05,0.1,-0.1])
+                    # q_ib += q[i_batch] *torch.tensor([-0.03,-0.05,-0.05,-0.06,-0.05,-0.05]).to(device='cuda')
                 # qd_ib = torch.tensor(qd_i).to(device='cuda')
                 # q_ib = torch.tensor(q_i).to(device='cuda')
-   
+
                 
                 # q_ib = torch.max(torch.min(q_ib, q_lim_max), q_lim_min)
     
                 # Append results to lists
                 q_list.append(q_ib)
                 qd_list.append(qd_ib)
-                qdd_list.append(torch.tensor(qdd).to(device='cuda'))
+                qdd_list.append(torch.tensor(qdd_i).to(device='cuda'))
 
             q_array = torch.stack(q_list)
             qd_array = torch.stack(qd_list)
@@ -227,17 +264,22 @@ class MODEL_PHY():
         if self.phy_type == 'industrobo':
             # the output the position which is the first dim of state 
             # st.shape (batch_size, number of state (each state is 6 dim!))
-            x_dim = xt.shape[1]
-            yt = xt[:,0:int(x_dim/2)].clone()
-            
-            '''
-            yt = xt[:,0:int(x_dim/2)].clone()
-            instead of
-            yt = xt[:,0:int(x_dim/2)] 
-            to avoid inplace problem
-            https://discuss.pytorch.org/t/runtimeerror-one-of-the-variables-needed-for-gradient-computation-has-been-modified-by-an-inplace-operation-torch-floattensor-64-1-which-is-output-0-of-asstridedbackward0-is-at-version-3-expected-version-2-instead-hint-the-backtrace-further-a/171826/7
-            '''
-            return yt
+            if self.if_level0==True:
+                x_dim = xt.shape[1]
+                yt = xt[:,0:int(x_dim/2)].clone()
+                
+                '''
+                yt = xt[:,0:int(x_dim/2)].clone()
+                instead of
+                yt = xt[:,0:int(x_dim/2)] 
+                to avoid inplace problem
+                https://discuss.pytorch.org/t/runtimeerror-one-of-the-variables-needed-for-gradient-computation-has-been-modified-by-an-inplace-operation-torch-floattensor-64-1-which-is-output-0-of-asstridedbackward0-is-at-version-3-expected-version-2-instead-hint-the-backtrace-further-a/171826/7
+                '''
+                return yt
+            else:
+                x_dim = xt.shape[1]
+                yt = xt[:,0:int(x_dim/2)].clone()
+                return yt-yt
         
         elif self.phy_type == 'toy_lgssm' or self.phy_type == 'toy_lgssm_5_pre':
             batch_size = ut.shape[0]

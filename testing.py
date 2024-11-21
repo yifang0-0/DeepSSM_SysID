@@ -185,7 +185,7 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
     # print('\nKF: mean VAF = {}'.format(vaf_KF))
     # print('KF: mean RMSE = {}'.format(rmse_KF))
     
-    print("y_test.shape,y_test_noisy.shape,y_sample_mu.shape\n",y_test.shape,y_test_noisy.shape,y_sample_mu.shape)
+    # print("y_test.shape,y_test_noisy.shape,y_sample_mu.shape\n",y_test.shape,y_test_noisy.shape,y_sample_mu.shape)
     
     
     
@@ -220,7 +220,7 @@ def run_test(options, loaders, df, path_general, file_name_general, **kwargs):
                     dim=options['model_options'].z_dim
                 else:
                     v=v.reshape(-1,2)
-                print("v_name v.shape",v_name, v.shape)
+                # print("v_name v.shape",v_name, v.shape)
                 v=v.transpose(0,2,1)
                 v=v.reshape(-1,dim)
             else:

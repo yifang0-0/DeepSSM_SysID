@@ -21,6 +21,7 @@ import torch
 import time
 import subprocess
 import io
+import json
 # os.chdir('../')
 # sys.path.append(os.getcwd())
 # import user-written files
@@ -138,12 +139,12 @@ def run_main_single(options, path_general, file_name_general):
     all_df = {}
 
     # initialize the dataframe
-    df = {}
+    
     for i in range(start_from_round, train_rounds):
-        if train_rounds>1:
-            file_name_general_i=file_name_general+"_No"+str(i)
-        else:
-            file_name_general_i=file_name_general
+
+        file_name_general_i=file_name_general+"_No"+str(i)
+        torch.cuda.empty_cache()
+
         # print which training iteration this is
         print(' {}/{} round starts'.format(i+1,train_rounds))
             # Specifying datasets
@@ -155,36 +156,51 @@ def run_main_single(options, path_general, file_name_general):
                                   k_max_train = options["dataset_options"].k_max_train,
                                   k_max_test = options["dataset_options"].k_max_test,
                                   k_max_val = options["dataset_options"].k_max_val,
-                                  
+                                  train_rounds = train_rounds,
                                   ith_round = i)
         
         # Compute normalizers
         if options["normalize"]:
+            print("normalized")
             normalizer_input, normalizer_output = compute_normalizer(loaders['train'])
         else:
+            print("no normalized")
             normalizer_input = normalizer_output = None
         
         # Define model
-        modelstate = ModelState(seed=options["seed"],
+        # for real dataset use different random seed
+        modelstate = ModelState(seed=options["seed"]+i,
                                 nu=loaders["train"].nu, ny=loaders["train"].ny,
                                 model=options["model"],
                                 options=options,
                                 normalizer_input=normalizer_input,
                                 normalizer_output=normalizer_output,
-                                 )
+                                )
         modelstate.model.to(options['device'])
         if options['do_train']:
             # train the model
+            print("\n\n yes training started!\n\n")
             # print("options['device']",options['device'])
-            
-            df = training.run_train(modelstate=modelstate,
+            new_df = []
+            new_df = training.run_train(modelstate=modelstate,
                                     loader_train=loaders['train'],
                                     loader_valid=loaders['valid'],
                                     options=options,
-                                    dataframe=df,
+                                    dataframe=new_df,
                                     path_general=path_general,
                                     file_name_general=file_name_general_i)
-            # df = pd.DataFrame(df)
+        
+            # check if path exists and create otherwise
+            print(new_df)
+            # df_list = []
+            # for _,i_df in df.items():
+            #     print(i_df)
+            #     df_list.append(i_df)
+            # df = pd.concat(df_list)
+            with open(path_general+file_name_general_i + '_trainingrecord.json', 'w') as f:
+                json.dump(new_df, f)
+            # new_df.to_csv(path_general+file_name_general_i + '_trainingrecord.csv',index=False)
+
         
         if options['do_test']:
             # # test the model
@@ -271,7 +287,6 @@ if __name__ == "__main__":
     OPTION_FROM_PARSER = True
     if OPTION_FROM_PARSER is True:
         options = {}
-
         main_params_parser = main_params.get_main_options()
         options['dataset'] = main_params_parser.dataset
         options['model'] = main_params_parser.model
@@ -291,7 +306,7 @@ if __name__ == "__main__":
 
 
         # print("Encountered errors loading the main options of the training/testing task")
-        
+        print("normalizer: ",options['normalize'])
         
     else:
         options = {

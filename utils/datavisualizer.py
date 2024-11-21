@@ -14,7 +14,7 @@ x: the true(KF) state
 
 # %% simplified version of the plot
 def plot_time_sequence_uncertainty_simp(data_y_true, data_y_sample_mu, data_y_sample_std, label_y, options, path_general, file_name_general,
-                                   batch_show, x_limit_show, length = 2000, start_index = 0):
+                                   batch_show, x_limit_show, length = 3600, start_index = 0):
 
     # storage path
     file_name = file_name_general + '_timeEval_'+label_y
@@ -133,6 +133,7 @@ def plot_losscurve(df, options, path_general, file_name_general, removedata=True
     # only if df has values
     if 'all_losses' in df:
         # storage path
+        print(file_name_general)
         file_name = file_name_general + '_loss'
         path = path_general + '/loss/'
 
@@ -159,20 +160,20 @@ def plot_losscurve(df, options, path_general, file_name_general, removedata=True
         plt.legend()
         plt.yscale('log')
         # save model
-        if options['savefig']:
+        # if options['savefig']:
             # check if path exists and create otherwise
-            if not os.path.exists(path):
-                os.makedirs(path)
-            plt.savefig(path + file_name + '.png', format='png')
-        # show the model
-        if options['showfig']:
-            plt.show()
+        if not os.path.exists(path):
+            os.makedirs(path)
+        plt.savefig(path + file_name + '.png', format='png')
+        # # show the model
+        # if options['showfig']:
+        #     plt.show()
         plt.close(1)
 
-        # delete loss value matrices from dictionary
-        if removedata:
-            del df['all_losses']
-            del df['all_vlosses']
+        # # delete loss value matrices from dictionary
+        # if removedata:
+        #     del df['all_losses']
+        #     del df['all_vlosses']
 
     return df
 

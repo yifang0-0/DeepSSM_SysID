@@ -15,6 +15,7 @@ class ModelState:
 
     def __init__(self, seed, nu, ny, model, options, **kwargs):
         torch.manual_seed(seed)
+        print("seed = ", seed)
 
         self.model = DynamicModel(model, nu, ny, options, **kwargs)
 

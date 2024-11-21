@@ -93,7 +93,7 @@ def get_main_options():
     model_parser.add_argument('--do_train', action="store_true")
     model_parser.add_argument('--do_test', action="store_true")
     model_parser.add_argument('--logdir',metavar = '',  type=str, default='same_dataset')
-    model_parser.add_argument('--normalize', metavar = '', type=bool, default=True)
+    model_parser.add_argument('--normalize', action='store_false',  default=True, help='if disable normalize, include it')
     model_parser.add_argument('--seed', metavar = '', type=int, default=1234)
     model_parser.add_argument('--optim', metavar = '', type=str, default='Adam')
     model_parser.add_argument('--showfig', metavar = '', type=bool, default=True)
@@ -145,6 +145,7 @@ def get_system_options(dataset_name,dataset_options):
         system_parameter['C'] = np.array([[1, 0], [0, 1]]).transpose()
         system_parameter['sigma_state'] = np.sqrt(0.25)
         system_parameter['sigma_out'] = np.sqrt(1)
+        
     elif dataset_name == "industrobo":
         system_parameter = {}
         system_parameter['dt'] = dataset_options.dt
@@ -158,8 +159,14 @@ def get_system_options(dataset_name,dataset_options):
             system_parameter['if_clip'] = True
         else:
             system_parameter['if_clip'] = False
-
-        
+        if dataset_options.if_level2 ==1:
+            system_parameter['if_level2'] = True
+        else:
+            system_parameter['if_level2'] = False
+        if dataset_options.if_level0 ==1:
+            system_parameter['if_level0'] = True
+        else:
+            system_parameter['if_level0'] = False
     else:
         system_parameter = {}
     return system_parameter
@@ -240,25 +247,25 @@ def get_dataset_options(dataset_name):
         dataset_options, unknown = dataset_parser.parse_known_args()
 
 
-    elif dataset_name == 'wiener_hammerstein':
-        dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: wiener hammerstein')
-        dataset_parser.add_argument('--y_dim', type=int, default=1, help='dimension of y')
-        dataset_parser.add_argument('--u_dim', type=int, default=1, help='dimension of u')
-        dataset_parser.add_argument('--seq_len_train', type=int, default=2048, help='training sequence length')
-        dataset_parser.add_argument('--seq_len_test', type=int, default=None, help='test sequence length')
-        dataset_parser.add_argument('--seq_len_val', type=int, default=2048, help='validation sequence length')
-        dataset_options, unknown = dataset_parser.parse_known_args()
+    # elif dataset_name == 'wiener_hammerstein':
+    #     dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: wiener hammerstein')
+    #     dataset_parser.add_argument('--y_dim', type=int, default=1, help='dimension of y')
+    #     dataset_parser.add_argument('--u_dim', type=int, default=1, help='dimension of u')
+    #     dataset_parser.add_argument('--seq_len_train', type=int, default=2048, help='training sequence length')
+    #     dataset_parser.add_argument('--seq_len_test', type=int, default=None, help='test sequence length')
+    #     dataset_parser.add_argument('--seq_len_val', type=int, default=2048, help='validation sequence length')
+    #     dataset_options, unknown = dataset_parser.parse_known_args()
         
-    elif dataset_name == 'f16gvt':
-        dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: f-16')
-        dataset_parser.add_argument('--y_dim', type=int, default=3, help='dimension of y')
-        dataset_parser.add_argument('--u_dim', type=int, default=2, help='dimension of u')
-        dataset_parser.add_argument('--input_lev', type=int, default=7, help='input activation level')
-        dataset_parser.add_argument('--input_type', type=str, default="FullMSine", help='input activation level')
-        dataset_parser.add_argument('--seq_len_train', type=int, default=1024, help='training sequence length')
-        dataset_parser.add_argument('--seq_len_test', type=int, default=1024, help='test sequence length')
-        dataset_parser.add_argument('--seq_len_val', type=int, default=1024, help='validation sequence length')
-        dataset_options, unknown = dataset_parser.parse_known_args()
+    # elif dataset_name == 'f16gvt':
+    #     dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: f-16')
+    #     dataset_parser.add_argument('--y_dim', type=int, default=3, help='dimension of y')
+    #     dataset_parser.add_argument('--u_dim', type=int, default=2, help='dimension of u')
+    #     dataset_parser.add_argument('--input_lev', type=int, default=7, help='input activation level')
+    #     dataset_parser.add_argument('--input_type', type=str, default="FullMSine", help='input activation level')
+    #     dataset_parser.add_argument('--seq_len_train', type=int, default=1024, help='training sequence length')
+    #     dataset_parser.add_argument('--seq_len_test', type=int, default=1024, help='test sequence length')
+    #     dataset_parser.add_argument('--seq_len_val', type=int, default=1024, help='validation sequence length')
+    #     dataset_options, unknown = dataset_parser.parse_known_args()
         
     elif dataset_name == 'industrobo':
         dataset_parser = argparse.ArgumentParser(description='dynamic system parameter: industrobo')
@@ -268,6 +275,8 @@ def get_dataset_options(dataset_name):
         dataset_parser.add_argument('--dt', type=float, default=0.1, help='sampling rate here')
         dataset_parser.add_argument('--if_clip', type=int, default=1, help='if clip 1, else 0')
         dataset_parser.add_argument('--if_G', type=int, default=1, help='if know Gear info 1, else 0')
+        dataset_parser.add_argument('--if_level2', type=int, default=0, help='if knowledge level 2, 1 else 0, default 0')
+        dataset_parser.add_argument('--if_level0', type=int, default=1, help='if knowledge level 0, 1 else 0, default 1')
         dataset_parser.add_argument('--if_simulation', type=int, default=0, help='if use simulated dataset 1, else 0')
         dataset_parser.add_argument('--roboname', type=str, default="KUKA300", help='choose which robot model we use here')
         # dataset_parser.add_argument('--input_type', type=str, default="FullMSine", help='input activation level')

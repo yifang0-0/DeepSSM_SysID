@@ -3,27 +3,46 @@ from data.base import IODataset
 from scipy.io import loadmat
 
 def create_industrobo_datasets(seq_len_train=None, seq_len_val=None, seq_len_test=None, seq_stride = None, sample_rate=1, file_name = 0,input_type = "SineSw", input_lev = 3, **kwargs):
+    ith_dataset = kwargs["ith_round"]
     if file_name == 0:
-        file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/forward_with_val.mat"
-    else:
-        # file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/simulated.mat"
-        file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/simulated_simposition_rad.mat"
+        file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/forward_identification_without_raw_data_shifted.mat"
+        df_industRobo =  loadmat(file_name_train)
+        # for real dataset there's onr bit shift
+        # No need to shift
+        seq_len_train -= 1
+        seq_len_val -= 1
+        seq_len_test -= 1
         
+
+        u_train = df_industRobo["u_train"]
+        u_val   = df_industRobo["u_val"]
+        u_test  = df_industRobo["u_test"]
+        y_train = df_industRobo["y_train"]/180*np.pi
+        y_val   = df_industRobo["y_val"]/180*np.pi
+        y_test  = df_industRobo["y_test"]/180*np.pi
+        print(y_test.shape)
+    else:
+        ## outdated: using the simulated data with no noise and addition of linear term
+        # file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/simulated_simposition_rad.mat"
+        # file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/simulated_simposition_noise{}.mat".format(ith_dataset)
+        # file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/1010m_2sim_position_noiseTorque{}.mat".format(ith_dataset)
+        file_name_train = "/home/ruiyuanli/dcscgpuserver1/DeepSSM_SysID/data/IndustRobo/1010m_vary_sim_position_noiseTorque{}.mat".format(ith_dataset)
+        
+        
+        df_industRobo =  loadmat(file_name_train)
+        u_train = df_industRobo["u_train"]
+        u_val   = df_industRobo["u_val"]
+        u_test  = df_industRobo["u_test"]
+        y_train = df_industRobo["y_train"]/180*np.pi
+        y_val   = df_industRobo["y_val"]/180*np.pi
+        y_test  = df_industRobo["y_test"]/180*np.pi
+            
     print(file_name_train)
     # read the file into variable
     
     
 
-    df_industRobo =  loadmat(file_name_train)
 
-    ith_lgssm = kwargs["ith_round"]
-
-    u_train = df_industRobo["u_train"]
-    u_val   = df_industRobo["u_val"]
-    u_test  = df_industRobo["u_test"]
-    y_train = df_industRobo["y_train"]/180*np.pi
-    y_val   = df_industRobo["y_val"]/180*np.pi
-    y_test  = df_industRobo["y_test"]/180*np.pi
 
     # y_train = df_industRobo["y_train"]
     # y_val   = df_industRobo["y_val"]
@@ -75,12 +94,21 @@ def create_industrobo_datasets(seq_len_train=None, seq_len_val=None, seq_len_tes
     else:
         # Default option
         k_max_train = 1
+    if kwargs["train_rounds"]>1:
+        length_pc = (1-k_max_train)/(kwargs["train_rounds"]-1)
+    else:
+        length_pc = (1-k_max_train)/(1)
+    start = int(ith_dataset*length_pc*u_train.shape[0])
+    length = int(u_train.shape[0]*k_max_train)
+    u_train = u_train[start:start+length] 
+    y_train = y_train[start:start+length] 
+    print("starts at and length is : ",ith_dataset*length_pc*100, k_max_train*100)
+    print("start,start+length : ",start,start+length)
         
-    u_train = u_train[0:int(u_train.shape[0]*k_max_train)] 
-    y_train = y_train[0:int(y_train.shape[0]*k_max_train)] 
+    # u_train = u_train[0:int(u_train.shape[0]*k_max_train)] 
+    # y_train = y_train[0:int(y_train.shape[0]*k_max_train)] 
  
     
-    print("seq_stride: ", seq_stride)
     
     # %% maybe not including the specific time step yet
     # u_train = np.hstack((time_test, u_train))

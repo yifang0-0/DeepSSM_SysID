@@ -66,7 +66,7 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
             # print("total_loss", total_loss)
 
             loss=total_loss / total_points  # total_batches
-            print("total_batch, total_points, total_loss, loss\n", total_batches, total_points, total_loss, loss)
+            # print("total_batch, total_points, total_loss, loss\n", total_batches, total_points, total_loss, loss)
             
             # output to console
             if i % train_options.print_every == 0:
@@ -85,6 +85,7 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
         vloss = validate(loader_valid)
         all_losses = []
         all_vlosses = []
+        all_losses_train = []
         best_vloss = vloss
         start_time = time.time()
 
@@ -95,16 +96,17 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
         best_epoch = 0
         path = path_general + 'model/'
         file_name = file_name_general + '_bestModel.ckpt'
-        
+        print("file_name: ",file_name)
         modelstate.save_model(0, vloss, time.time() - start_time, path, file_name)
-        
+
         for epoch in range(0, train_options.n_epochs + 1):
             # Train and validate
-            train(epoch)  # model, train_options, loader_train, optimizer, epoch, lr)
+            loss = train(epoch)  # model, train_options, loader_train, optimizer, epoch, lr)
             # validate every n epochs
+            all_losses_train += [loss]
             if epoch % train_options.test_every == 0:
                 vloss = validate(loader_valid)
-                loss = validate(loader_train)
+                # loss = validate(loader_train)
                 # Save losses
                 all_losses += [loss]
                 all_vlosses += [vloss]
@@ -120,8 +122,7 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
 
                 # Print validation results
                 print('Train Epoch: [{:5d}/{:5d}], Batch [{:6d}/{:6d} ({:3.0f}%)]\tLearning rate: {:.2e}\tLoss: {:.3f}'
-                      '\tVal Loss: {:.3f}'.format(epoch, train_options.n_epochs, len(loader_train), len(loader_train),
-                                                  100., lr, loss, vloss))
+                      '\tVal Loss: {:.3f}'.format(epoch, train_options.n_epochs, len(loader_train), len(loader_train),100., lr, loss, vloss))
 
                 # lr scheduler
                 if epoch >= train_options.lr_scheduler_nstart:
@@ -153,12 +154,13 @@ def run_train(modelstate, loader_train, loader_valid, options, dataframe, path_g
 
     # save data in dictionary
     train_dict = {'all_losses': all_losses,
+                  'all_losses_train': all_losses_train,
                   'all_vlosses': all_vlosses,
                   'best_epoch': best_epoch,
                   'total_epoch': epoch,
                   'train_time': time_el}
     # overall options
-    dataframe.update(train_dict)
-    dv.plot_losscurve(dataframe, options, path_general, file_name_general)
+    # dataframe.update(train_dict)
+    dv.plot_losscurve(train_dict, options, path_general, file_name_general)
     
-    return dataframe
+    return train_dict
